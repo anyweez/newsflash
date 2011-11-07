@@ -10,7 +10,6 @@ def feed_info(feed_url):
     
     print 'Reading from %s (%s)' % (feed_url, channel['title'])
     for item in items:
-        print item
         record = {}
         if item.has_key('title'):
             record['title'] = item['title']
@@ -27,18 +26,21 @@ def feed_info(feed_url):
         # If we've got a link to the article, pull that in and
         #   store it.  We need to figure out where to store this...
         if record.has_key('link'):
-            filename = '../data/html/%s.html' % hashlib.md5(str(record)).hexdigest()
+            filename = 'data/html/%s.html' % hashlib.md5(str(record)).hexdigest()
             # TODO: Can we make this asynchronous?
             try:
                 data = urllib2.urlopen(record['link'])
             
-                fp = open(filename, 'wb')
+                fp = open('../%s' % filename, 'wb')
                 fp.write(data.read())
                 fp.close()
+                
+                record['full_html'] = filename
             except HTTPError, e:
                 print "HTTP Error:",e.code , url
             except URLError, e:
-                print "URL Error:",e.reason , url            
+                print "URL Error:",e.reason , url    
+        
     return info
 
 fp = open('rss.txt')

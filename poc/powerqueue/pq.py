@@ -1,4 +1,4 @@
-import pika
+import pika, cPickle
 
 # Base class for the two queues.  Not intended to be instantiated
 #   directly.
@@ -30,7 +30,7 @@ class ProducerQueue(PowerQueue):
         self.getChannel().basic_publish(
             exchange='', 
             routing_key=self.queue_name, 
-            body=msg,
+            body=cPickle.dumps(msg),
             properties=pika.BasicProperties(
                 # Makes messages persistent.
                 delivery_mode = 2,
@@ -57,14 +57,18 @@ class ConsumerQueue(PowerQueue):
         if self._callback is not None:
             self.getChannel().start_consuming()
         else:
-            raise Exception('You must define a callback before receiving events.')
+            raise Exception('You must register a callback before receiving events.')
     
     def _ack(self, delivery_tag):
         self.getChannel().basic_ack(delivery_tag = delivery_tag)
     
     def _callback(self, ch, method, properties, body):
         # Call the function with the message data
-        self._callback(body)
+        self._callback(cPickle.loads(body))
         # Acknowledge that the task completed successfully/
         #   This will remove the task from the RMQ queue.
         self._ack(method.delivery_tag)    
+        
+class Message(object):
+    def __init__(self):
+        pass

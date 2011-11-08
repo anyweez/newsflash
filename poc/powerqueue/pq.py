@@ -1,4 +1,12 @@
-import pika, cPickle
+import pika
+# Currently serializing with JSON because pickle is an absolute PITA
+import json as serialize
+
+# A base class used for transmitting messages
+#   to and from queues.
+class Message(object):
+    def __init__(self):
+        pass
 
 # Base class for the two queues.  Not intended to be instantiated
 #   directly.
@@ -30,7 +38,7 @@ class ProducerQueue(PowerQueue):
         self.getChannel().basic_publish(
             exchange='', 
             routing_key=self.queue_name, 
-            body=cPickle.dumps(msg),
+            body=serialize.dumps(msg.__dict__),
             properties=pika.BasicProperties(
                 # Makes messages persistent.
                 delivery_mode = 2,
@@ -43,7 +51,8 @@ class ProducerQueue(PowerQueue):
 class ConsumerQueue(PowerQueue):
     def __init__(self, host, queue_name):
         super(ConsumerQueue, self).__init__(host, queue_name)
-        self.getChannel().basic_consume(self._callback, queue=queue_name)
+        self._callback = None
+        self.queue_name = queue_name
         
     def __del__(self):
         super(ConsumerQueue, self).__del__()
@@ -54,21 +63,23 @@ class ConsumerQueue(PowerQueue):
     # Start receiving events and call the callback function
     #   once a new event arrives.
     def start_waiting(self):
+        self.getChannel().basic_consume(self.__callback, queue=self.queue_name)        
+
         if self._callback is not None:
             self.getChannel().start_consuming()
         else:
             raise Exception('You must register a callback before receiving events.')
     
-    def _ack(self, delivery_tag):
+    def __ack(self, delivery_tag):
         self.getChannel().basic_ack(delivery_tag = delivery_tag)
     
-    def _callback(self, ch, method, properties, body):
+    def __callback(self, ch, method, properties, body):
+        msg = Message()
+        msg.__dict__ = serialize.loads(body)
         # Call the function with the message data
-        self._callback(cPickle.loads(body))
-        # Acknowledge that the task completed successfully/
-        #   This will remove the task from the RMQ queue.
-        self._ack(method.delivery_tag)    
+        self._callback(msg)
         
-class Message(object):
-    def __init__(self):
-        pass
+        # Acknowledge that the task completed successfully.
+        #   This will remove the task from the RMQ queue.
+        self.__ack(method.delivery_tag)
+        

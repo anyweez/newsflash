@@ -55,7 +55,8 @@ def get_meta(msg):
         if item.has_key('author'):
             record.author = item['author']
         
-        if rstore.record_exists(record) is False:
+        # Require that stored records a) aren't already stored and b) have full text.
+        if rstore.record_exists(record) is False and hasattr(record, 'full_text'):
             # Store the new record in the database.
             rid = rstore.store(record)
             

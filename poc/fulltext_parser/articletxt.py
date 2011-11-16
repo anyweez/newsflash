@@ -1,14 +1,16 @@
 # BeautifulSoup = glorious (mal-formed) HTML parser
 from BeautifulSoup import BeautifulSoup
-import sys, re
+import sys
 
-def get_body_text(filename):
-    # Read the file
+def get_body_from_file(filename):
     f = open(filename)
     html = f.readlines()
-    f.close()
+    f.close() 
 
-    soup = BeautifulSoup(''.join(html), convertEntities=BeautifulSoup.HTML_ENTITIES)
+    return get_body_text(''.join(html))
+
+def get_body_text(html):
+    soup = BeautifulSoup(html, convertEntities=BeautifulSoup.HTML_ENTITIES)
     # Fingers crossed...this makes our job easy :-)
     articles = soup.findAll('article')
     
@@ -61,4 +63,4 @@ if __name__ == '__main__':
 
     ## First parameter should be the name of the file to read
     filename = sys.argv[1]
-    text = get_body_text(filename)
+    text = get_body_from_file(filename)

@@ -45,7 +45,8 @@ def get_meta(msg):
                 print "URL Error:", e.reason , msg.url    
         
         write_record(record)
-
+        # TODO: Send messages to preprocess.annotate.
+        
 def write_record(record):
     # Convert the record into a string.
     s = ' | '.join(['%s:%s' % (key, record[key]) for key in record.keys()])

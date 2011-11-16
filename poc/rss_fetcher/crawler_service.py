@@ -1,4 +1,4 @@
-import hashlib, urllib2, sys
+import urllib2, httplib
 import feedparser
 
 from poc.db import db
@@ -25,17 +25,29 @@ def get_meta(msg):
             record.title = item['title']
         if item.has_key('link'):
             record.link = item['link']
-            try:
-                data = urllib2.urlopen(record.link)
-                #Store the full text in the record
+            
+            finished = False
+            attempts = 10
+            # Store the full text in the record
+            while not finished:
                 try:
+                    data = urllib2.urlopen(record.link)
                     record.full_text = articletxt.get_body_text(data.read())
+                    finished = True
                 except ValueError, e:
                     print "Error retrieving full text: ", e
-            except HTTPError, e:
-                print "HTTP Error:", e.code
-            except URLError, e:
-                print "URL Error:", e.reason    
+                    finished = True
+                except httplib.IncompleteRead, e:
+                    attempts += 1
+                    if attempts == 10:
+                        finished = True
+                except HTTPError, e:
+                    print "HTTP Error:", e.code
+                    finished = True
+                except URLError, e:
+                    print "URL Error:", e.reason
+                    finished= True
+                        
         if item.has_key('updated_parsed'):
             record.pubDate = item['updated_parsed']
         if item.has_key('summary'):

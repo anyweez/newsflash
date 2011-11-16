@@ -27,7 +27,7 @@ def get_meta(msg):
             record.link = item['link']
             
             finished = False
-            attempts = 10
+            attempts = 0
             # Store the full text in the record
             while not finished:
                 try:
@@ -68,7 +68,6 @@ def get_meta(msg):
             added += 1
             
     print "%d new articles added." % added
-        # TODO: Send messages to preprocess.annotate.
         
 def launch_crawler():
     in_queue = pq.ConsumerQueue('localhost', 'preprocess.crawl')

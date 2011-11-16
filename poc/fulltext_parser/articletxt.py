@@ -52,7 +52,7 @@ def get_body_text(html):
             for section in sections:
                 text.append(section.text.encode('ascii', errors='ignore'))
         else:
-            raise Exception('Could not find article body in %s' % (filename))
+            raise Exception('Could not find article body.')
         
         return ''.join(text)
 

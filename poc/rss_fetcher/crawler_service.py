@@ -47,6 +47,8 @@ def get_meta(msg):
                 except URLError, e:
                     print "URL Error:", e.reason
                     finished= True
+		except Exception, e:
+		    print "Could not find body text in ", record.link
                         
         if item.has_key('updated_parsed'):
             record.pubDate = item['updated_parsed']

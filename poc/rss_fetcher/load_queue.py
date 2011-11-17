@@ -1,6 +1,6 @@
 from poc.powerqueue import pq
 
-def load_feeds():
+def load_feeds(ignored):
     # Create a connection to the output queue.
     queue = pq.ProducerQueue('localhost', 'preprocess.crawl')
 

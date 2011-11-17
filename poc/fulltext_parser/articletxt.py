@@ -22,9 +22,9 @@ def get_body_text(html):
         for segment in articles:
             sibs = segment.findNextSiblings()
             for sib in sibs:
-                text.append(sib.text.encode('ascii', errors='ignore'))
+                text.append(sib.text.encode('utf-8', errors='ignore'))
         
-        return ''.join(text)
+        return ' '.join(text)
           
     # In the more challenging case, we don't have <article> tags and need to
     #   determine which elements hold the article info.  Right now we're just
@@ -50,11 +50,11 @@ def get_body_text(html):
         if article is not None:
             sections = article.findAll(['p', 'span'])
             for section in sections:
-                text.append(section.text.encode('ascii', errors='ignore'))
+                text.append(section.text.encode('utf-8', errors='ignore'))
         else:
             raise Exception('Could not find article body.')
         
-        return ''.join(text)
+        return ' '.join(text)
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:

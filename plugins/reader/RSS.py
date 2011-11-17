@@ -5,6 +5,7 @@ from poc.db import db
 from poc.fulltext_parser import articletxt
 from poc.powerqueue import pq
 from urllib2 import HTTPError, URLError
+from BeautifulSoup import BeautifulSoup
 
 class RSS(plugin.BasePlugin):
     def __init__(self):
@@ -55,12 +56,12 @@ class RSS(plugin.BasePlugin):
                     finished = True
                 except Exception, e:
                     print "Could not find body text in ", record.link
-            finished = True
+                    finished = True
                         
             if item.has_key('updated_parsed'):
                 record.pubDate = item['updated_parsed']
             if item.has_key('summary'):
-                record.summary = item['summary']
+                record.summary = ''.join(BeautifulSoup(item['summary']).findAll(text=True))
             if item.has_key('author'):
                 record.author = item['author']
         

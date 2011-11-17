@@ -11,16 +11,18 @@ def load(plugin_type, plugin_name):
 
 
 # Plugins should extend this base class and implement
-#   the execute() method.
+#   the init() and execute() methods.
 class BasePlugin(object):
     def __init__(self):
         pass
 
-    # This should be overwritten by the plugin maker.
+    # This should be overwritten by the plugin maker.  This will be
+    #   called one time before the wave of execute()'s starts.
     def init(self):
         raise NotImplementedError
     
-    # This should be overwritten by the plugin maker.
+    # This should be overwritten by the plugin maker.  This will be
+    #   called once per arriving event.
     def execute(self, msg):
         raise NotImplementedError
     

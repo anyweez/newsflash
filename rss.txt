@@ -10,3 +10,7 @@ http://feeds.washingtonpost.com/rss/politics
 http://feeds.washingtonpost.com/rss/opinions
 http://feeds.washingtonpost.com/rss/lifestyle
 http://feeds.washingtonpost.com/rss/world
+http://feeds.sfgate.com/sfgate/rss/feeds/news_pageone
+http://feeds.sfgate.com/sfgate/rss/feeds/business
+http://feeds.chicagotribune.com/chicagotribune/news/
+http://feeds.feedburner.com/chicagotribune/chicagobreakingbusiness

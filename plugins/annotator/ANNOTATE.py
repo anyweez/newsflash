@@ -24,8 +24,8 @@ class ANNOTATE(plugin.BasePlugin):
         #push message to preprocess.annotate
     
     def execute(self, msg):
-        print "Annotating: %s" % (msg.url)
-
+        print "Annotating: %s" % (msg.rid)
+        
         rstore = self.getRecordStore()
 # calculations = [mean, count]
 #        rstore = db.RecordStore("localhost")

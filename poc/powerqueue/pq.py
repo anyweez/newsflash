@@ -21,7 +21,7 @@ class PowerQueue(object):
         
     def __del__(self):
         self._conn.close()
-
+        
     def getChannel(self):
         return self._chan
 

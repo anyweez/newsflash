@@ -19,3 +19,4 @@ for key, value in params:
     message.__dict__[key] = value
 
 queue.send(message)
+queue.__del__()

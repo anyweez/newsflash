@@ -37,6 +37,6 @@ class ANNOTATE(plugin.BasePlugin):
     
 #   for i in calculations:    #make all needed calculations and append them to record
 #       record.i=calculations(record.data,i)  
-        rstore.update(record)
+        rstore.update(rid, record)
         self.send_messages(rid)
         

@@ -1,8 +1,6 @@
 import numpy
 from poc.plugin import plugin
-
-class message():
-    pass
+from poc.powerqueue import pq
 
 class ANNOTATE(plugin.BasePlugin):
     def __init__(self):
@@ -14,8 +12,9 @@ class ANNOTATE(plugin.BasePlugin):
         self.setRecordStoreHost('localhost')
         
     def send_messages(self, rid):
+        message=pq.Message()
         message.first = rid
-        for i in rid - 1:
+        for i in range(1,rid):
             message.second = i #i goest to rid - 1
         #title, publication date, source, full text
         #   open("filefake.csv", "wb", message)

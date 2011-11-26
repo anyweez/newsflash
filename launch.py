@@ -2,6 +2,7 @@ import sys
 # Import the crawler service
 from poc.rss_fetcher.crawler_service import launch_crawler
 from poc.rss_fetcher.load_queue import load_feeds
+from poc.annotator.annotator_service import launch_annotator
     
 if len(sys.argv) is not 3:
     print 'Please provide the name of the service to launch and an appropriate plugin.'
@@ -12,7 +13,8 @@ plugin_name = sys.argv[2]
 
 services = {
     'crawler' : launch_crawler,
-    'load_feeds' : load_feeds
+    'load_feeds' : load_feeds,
+    'annotate' : launch_annotator
 }
 
 if services.has_key(service):

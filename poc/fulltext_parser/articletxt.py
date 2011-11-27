@@ -10,10 +10,11 @@ def get_body_from_file(filename):
     return get_body_text(''.join(html))
 
 def get_body_text(html):
+    # This line takes a while...probably because it has to perform magic.
     soup = BeautifulSoup(html, convertEntities=BeautifulSoup.HTML_ENTITIES)
     # Fingers crossed...this makes our job easy :-)
     articles = soup.findAll('article')
-    
+
     # In the easiest case we can just check for information inside of the <article>
     #   tag.  All of the HTML characters and additional tags will be stripped,
     #   leaving just plain text.
@@ -23,9 +24,9 @@ def get_body_text(html):
             sibs = segment.findNextSiblings()
             for sib in sibs:
                 text.append(sib.text.encode('utf-8', errors='ignore'))
-        
         return ' '.join(text)
-          
+         
+    
     # In the more challenging case, we don't have <article> tags and need to
     #   determine which elements hold the article info.  Right now we're just
     #   grabbing the <div> that has the most <p>'s as direct children.  From
@@ -46,7 +47,7 @@ def get_body_text(html):
                 p_max = len(subp)
                 article = div
      
-        # Print out the text in the <p> and <span> tags in the chosen article.
+        # Get the text in the <p> and <span> tags in the chosen article.
         if article is not None:
             sections = article.findAll(['p', 'span'])
             for section in sections:

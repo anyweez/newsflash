@@ -14,12 +14,12 @@ class ANNOTATE(plugin.BasePlugin):
     def send_messages(self, rid):
         message=pq.Message()
         message.first = rid
+        pqueue = self.getOutputQueue()
         for i in range(1,rid):
             message.second = i #i goest to rid - 1
         #title, publication date, source, full text
         #   open("filefake.csv", "wb", message)
-        pqueue = self.getOutputQueue()
-        pqueue.send(message)
+            pqueue.send(message)
         #push message to preprocess.annotate
     
     def execute(self, msg):

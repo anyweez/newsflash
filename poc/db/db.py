@@ -53,6 +53,6 @@ class RecordStore(object):
         else:
             return False
         
-    def execute(self, query, params):
+    def execute(self, query, params = []):
         self.cursor.execute(query, params)
         return self.cursor.fetchall()

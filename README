@@ -5,3 +5,17 @@ The queue's name describes the function of the puller.
 preprocess.crawl
 preprocess.annotate
 preprocess.similarity
+
+
+Dependencies:
+
+mysql-server
+rabbitmq-server
+python-mysqldb
+python-feedparser
+python-gevent
+python-beautifulsoup
+python-numpy
+python-pip # (for pika)
+
+python-pika (via pip): sudo pip install pika==0.9.5

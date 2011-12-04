@@ -36,7 +36,6 @@ class BasePlugin(object):
     def setRecordStoreHost(self, host):
         self.record_store = db.RecordStore(host)
 
-    # TODO: This doesn't work yet.
     def setMatrixStoreHost(self, host):
         self.matrix_store = matrix.MatrixStore(host)
         
@@ -49,6 +48,5 @@ class BasePlugin(object):
     def getRecordStore(self):
         return self.record_store
     
-    # TODO: This doesn't work yet.
     def getMatrixStore(self):
         return self.matrix_store

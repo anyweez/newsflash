@@ -1,4 +1,5 @@
 from poc.db import db
+from poc.db import matrix
 from poc.powerqueue import pq
 
 def load(plugin_type, plugin_name):
@@ -37,8 +38,7 @@ class BasePlugin(object):
 
     # TODO: This doesn't work yet.
     def setMatrixStoreHost(self, host):
-        self.matrix_store = None
-        raise NotImplementedError
+        self.matrix_store = matrix.MatrixStore(host)
         
     def getInputQueue(self):
         return self.input_queue
@@ -51,4 +51,4 @@ class BasePlugin(object):
     
     # TODO: This doesn't work yet.
     def getMatrixStore(self):
-        raise NotImplementedError
+        return self.matrix_store

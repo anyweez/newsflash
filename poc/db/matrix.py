@@ -1,8 +1,8 @@
 import db
 
 class MatrixStore(object):
-    def __init__(self):
-        self.db = db.RecordStore('localhost')
+    def __init__(self, host='localhost'):
+        self.db = db.RecordStore(host)
     
     # Used to set (x, y) = value.  The store currently assumes that
     #   the matrix is symmetric, so (x, y) and (y, x) will always

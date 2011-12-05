@@ -23,7 +23,14 @@ def scan_plugins():
         for plugin in plugins:
             # Try importing that module:plugin and test if it has a runloop() method.
             __import__(".".join(["plugins", modulename, plugin]))
-            if hasattr(getattr(getattr(getattr(__import__("plugins"), modulename), plugin), plugin), "runloop"):
+            modulehandle = getattr(__import__("plugins"), modulename)
+            if not hasattr(modulehandle, plugin):
+                continue
+            pluginhandle = getattr(modulehandle, plugin)
+            if not hasattr(pluginhandle, plugin):
+                continue
+            pluginobjecthandle = getattr(pluginhandle, plugin)
+            if hasattr(pluginobjecthandle, "runloop"):
                 # If so, add it to the known_modules registry.
                 #print "module %s has plugin %s with runloop" % (modulename, plugin)
                 if modulename not in known_modules:

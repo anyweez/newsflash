@@ -20,6 +20,14 @@ class WordIncidence(plugin.BasePlugin):
         print "record", msg.first, ":", dir(r1)
         print r1.count
 
-        mstore = self.getMatrixStore()
-        mstore.set_val(x=msg.first, y=msg.second, value=0.5)
+        # Do something with the fields to compute a float representing similarity
+        similarity = 0.5
 
+        mstore = self.getMatrixStore()
+        mstore.set_val(x=msg.first, y=msg.second, value=similarity)
+
+    def runloop(self):
+        in_queue = pq.ConsumerQueue('localhost', 'preprocess.similarity')
+        in_queue.register_callback(self.execute)
+        print "Launching similarity..."
+        in_queue.start_waiting()

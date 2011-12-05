@@ -39,3 +39,9 @@ class ANNOTATE(plugin.BasePlugin):
         rstore.update(rid, record)
         self.send_messages(rid)
         
+    def runloop(self):
+        in_queue = pq.ConsumerQueue('localhost', 'preprocess.annotate')
+        in_queue.register_callback(self.execute)
+        print "Launching annotator..."
+        in_queue.start_waiting()
+

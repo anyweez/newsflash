@@ -1,0 +1,25 @@
+from poc.plugin import plugin
+from poc.powerqueue import pq
+
+class WordIncidence(plugin.BasePlugin):
+    def __init__(self):
+        # Call your own constructor
+        super(WordIncidence, self).__init__()
+
+    def init(self):
+        self.setRecordStoreHost('localhost')
+        self.setMatrixStoreHost('localhost')
+
+    def execute(self, msg):
+        print "Word Incidence: processing incidence between rid %s and rid %s" % (msg.first, msg.second)
+        rstore = self.getRecordStore()
+        r1 = rstore.get(msg.first)
+        r2 = rstore.get(msg.second)
+
+        # Known fields: 'author', 'count', 'full_text', 'link', 'pubDate', 'summary', 'title'
+        print "record", msg.first, ":", dir(r1)
+        print r1.count
+
+        mstore = self.getMatrixStore()
+        mstore.set_val(x=msg.first, y=msg.second, value=0.5)
+

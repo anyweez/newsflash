@@ -14,3 +14,11 @@ http://feeds.sfgate.com/sfgate/rss/feeds/news_pageone
 http://feeds.sfgate.com/sfgate/rss/feeds/business
 http://feeds.chicagotribune.com/chicagotribune/news/
 http://feeds.feedburner.com/chicagotribune/chicagobreakingbusiness
+http://feeds.reuters.com/reuters/businessNews
+http://feeds.reuters.com/ReutersBusinessTravel
+http://feeds.reuters.com/reuters/companyNews
+http://feeds.reuters.com/reuters/technologyNews
+http://feeds.reuters.com/reuters/topNews
+http://rss.cnn.com/rss/cnn_topstories.rss
+http://rss.cnn.com/rss/money_latest.rss
+http://rss.cnn.com/rss/cnn_tech.rss

@@ -1,4 +1,4 @@
-import db
+import db, pycassa
 
 class MatrixStore(object):
     def __init__(self, host='localhost'):
@@ -40,3 +40,23 @@ class MatrixStore(object):
                 row[int(val[1])] = float(val[2])
             
         return row
+    
+class CassandraMatrixStore(object):
+    def __init__(self, hosts=['localhost:9160']):
+        self.db_pool = pycassa.ConnectionPool('newsflash', server_list=hosts)
+        self.pool_cf = pycassa.ColumnFamily(self.db_pool, 'Records')
+    
+    def set_val(self, x, y, val):
+        self.pool_cf.insert(str(x), { str(y) : str(val) })
+    
+    def get_val(self, x, y):
+        result = self.pool_cf.get(str(x), str(y))
+        return float(result[x])
+    
+    def getrow(self, x):
+        result = self.pool_cf.get(str(x))
+        output = {}
+        for key in result:
+            output[int(key)] = float(key)
+
+        return output

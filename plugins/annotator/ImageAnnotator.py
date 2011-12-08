@@ -28,12 +28,15 @@ class ImageAnnotator(plugin.BasePlugin):
         rstore = self.getRecordStore()
         record = rstore.get(msg.rid)  #open record from rstore with rid
 
-        img = Image.open("/home/luke/Desktop/flickr-pull/photos/%s" % record.filename)
+        img = Image.open("data/photos/%s" % record.filename)
         hist = img.histogram()
         
-        record.r_hist = hist[:256]
-        record.g_hist = hist[256:512]
-        record.b_hist = hist[512:]
+        # Get histograms for each color channel (assumed
+        #   to be three).
+        pixelcount = float(img.size[0] * img.size[1])
+        record.r_hist = [x / pixelcount for x in hist[:256]]
+        record.g_hist = [x / pixelcount for x in hist[256:512]]
+        record.b_hist = [x / pixelcount for x in hist[512:]]
         
         rstore.update(msg.rid, record)
         self.send_messages(msg.rid)

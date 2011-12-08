@@ -5,7 +5,7 @@ The queue's name describes the function of the puller.
 preprocess.crawl
 preprocess.annotate
 preprocess.similarity
-
+preprocess.completed
 
 Dependencies:
 

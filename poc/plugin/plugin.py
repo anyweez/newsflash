@@ -1,6 +1,6 @@
 import ConfigParser
-from poc.db import db
 from poc.db import matrix
+from poc.db import db
 from poc.powerqueue import pq
 
 def load(plugin_type, plugin_name):
@@ -65,7 +65,7 @@ class BasePlugin(object):
     def getMatrixStore(self):
         if self.matrix_store is None:
             host = self.getParam('matrix_host')
-            self.matrix_store = matrix.MatrixStore(host)
+            self.matrix_store = matrix.CassandraMatrixStore(host)
         return self.matrix_store
     
     def getParam(self, param_name):

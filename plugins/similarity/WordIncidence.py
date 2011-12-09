@@ -7,7 +7,7 @@ class WordIncidence(plugin.BasePlugin):
         super(WordIncidence, self).__init__()
 
     def init(self):
-        pass
+        self.setInputQueue('preprocess.similarity')
 
     def execute(self, msg):
         print "Word Incidence: processing incidence between rid %s and rid %s" % (msg.first, msg.second)
@@ -23,10 +23,10 @@ class WordIncidence(plugin.BasePlugin):
         similarity = 0.5
 
         mstore = self.getMatrixStore()
-        mstore.set_val(x=msg.first, y=msg.second, value=similarity)
+        mstore.set_val(x=msg.first, y=msg.second, val=similarity)
 
     def runloop(self):
-        in_queue = pq.ConsumerQueue('localhost', 'preprocess.similarity')
+        in_queue = self.getInputQueue()
         in_queue.register_callback(self.execute)
         print "Launching similarity..."
         in_queue.start_waiting()

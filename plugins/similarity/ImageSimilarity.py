@@ -32,7 +32,7 @@ class ImageSimilarity(plugin.BasePlugin):
             #   6.  Invert and normalize to fall between the range
             #   [0, 1] where higher = more similar.
             similarity = (6 - (r_delt + g_delt + b_delt)) / 6
-            mstore.set_val(x=msg.primary, y=secondary, value=similarity)
+            mstore.set_val(x=msg.primary, y=secondary, val=similarity)
         
             secondary += 1
         # Pass the same message that we received.

@@ -1,12 +1,13 @@
 import db, pycassa, ConfigParser
 
 class MatrixStore(object):
-    def __init__(self, host='localhost'):
-        self.db = db.RecordStore(host)
-        
+    def __init__(self):
         config = ConfigParser.RawConfigParser()
         config.read('config.ini')
         self.table_name = config.get('storage', 'matrix_name')
+        
+        host = config.get('storage', 'matrix_host')
+        self.db = db.RecordStore(host)
         
         # Make sure that the table exists.        
         self.db.execute("CREATE TABLE IF NOT EXISTS %s (cid INT NOT NULL AUTO_INCREMENT PRIMARY KEY, x INT, y INT, val FLOAT)" % (self.table_name,))
@@ -49,19 +50,25 @@ class MatrixStore(object):
         return row
     
 class CassandraMatrixStore(object):
-    def __init__(self, hosts=['localhost:9160']):
-        self.db_pool = pycassa.ConnectionPool('newsflash', server_list=hosts)
-        self.pool_cf = pycassa.ColumnFamily(self.db_pool, 'Records')
-    
+    def __init__(self, hosts=[]):
+        
+        config = ConfigParser.RawConfigParser()
+        config.read('config.ini')
+        self.db_host = config.get('storage', 'matrix_host')
+        self.table_name = config.get('storage', 'matrix_name')
+        
+        self.db_pool = pycassa.ConnectionPool('newsflash', server_list=['%s:9160' % self.db_host])
+        self.pool_cf = pycassa.ColumnFamily(self.db_pool, self.table_name)
+        
     def set_val(self, x, y, val):
-        self.pool_cf.insert(str(x), { str(y) : str(val) })
+        self.pool_cf.insert(x, { y : str(val) })
     
     def get_val(self, x, y):
-        result = self.pool_cf.get(str(x), str(y))
+        result = self.pool_cf.get(x, y)
         return float(result[x])
     
     def getrow(self, x):
-        result = self.pool_cf.get(str(x))
+        result = self.pool_cf.get(x)
         output = {}
         for key in result:
             output[int(key)] = float(key)

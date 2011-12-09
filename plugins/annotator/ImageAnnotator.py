@@ -9,9 +9,8 @@ class ImageAnnotator(plugin.BasePlugin):
         super(ImageAnnotator, self).__init__()
         
     def init(self):
-        self.setOutputQueueName('localhost', 'preprocess.similarity')
-        self.setInputQueueName('localhost', 'preprocess.annotate')
-        self.setRecordStoreHost('localhost')
+        self.setOutputQueue('preprocess.similarity')
+        self.setInputQueue('preprocess.annotate')
         
     def send_messages(self, rid):
         message=pq.Message()

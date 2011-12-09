@@ -8,9 +8,8 @@ class ImageSimilarity(plugin.BasePlugin):
         super(ImageSimilarity, self).__init__()
 
     def init(self):
-        self.setRecordStoreHost('localhost')
-        self.setMatrixStoreHost('localhost')
-        self.setOutputQueueName('localhost', 'preprocess.completed')
+        self.setOutputQueue('preprocess.completed')
+        self.setInputQueue('preprocess.similarity')
 
     def execute(self, msg):
         secondary = int(msg.secondary_min)
@@ -41,7 +40,7 @@ class ImageSimilarity(plugin.BasePlugin):
             secondary += 1
 
     def runloop(self):
-        in_queue = pq.ConsumerQueue('localhost', 'preprocess.similarity')
+        in_queue = self.getInputQueue()
         in_queue.register_callback(self.execute)
         print "Launching similarity..."
         in_queue.start_waiting()

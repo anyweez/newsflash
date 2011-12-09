@@ -8,9 +8,9 @@ class ANNOTATE(plugin.BasePlugin):
         super(ANNOTATE, self).__init__()
         
     def init(self):
-        self.setOutputQueueName('localhost', 'preprocess.similarity')
-        self.setRecordStoreHost('localhost')
-        
+        self.setOutputQueue('preprocess.similarity')
+        self.setInputQueue('preprocess.annotate')
+
     def send_messages(self, rid):
         message=pq.Message()
         message.first = rid
@@ -40,7 +40,7 @@ class ANNOTATE(plugin.BasePlugin):
         self.send_messages(rid)
         
     def runloop(self):
-        in_queue = pq.ConsumerQueue('localhost', 'preprocess.annotate')
+        in_queue = self.getInputQueue()
         in_queue.register_callback(self.execute)
         print "Launching annotator..."
         in_queue.start_waiting()

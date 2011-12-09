@@ -7,8 +7,7 @@ class OfflineDB(plugin.BasePlugin):
         super(OfflineDB, self).__init__()
         
     def init(self):
-        self.setOutputQueueName('localhost', 'preprocess.annotate')
-        self.setRecordStoreHost('localhost')
+        self.setOutputQueue('preprocess.annotate')
     
     def execute(self, msg):
         pqueue = self.getOutputQueue()

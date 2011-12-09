@@ -15,8 +15,7 @@ class RSS(plugin.BasePlugin):
         monkey.patch_all()
         
     def init(self):
-        self.setOutputQueueName('localhost', 'preprocess.annotate')
-        self.setRecordStoreHost('localhost')
+        self.setOutputQueue('preprocess.annotate')
         
     def process_record(self, record, outq):
         print '  Fetching url %s' % record.link

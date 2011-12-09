@@ -14,11 +14,11 @@ class FileSystem(plugin.BasePlugin):
         super(FileSystem, self).__init__()
 
     def init(self):
-        self.setOutputQueueName('localhost', 'preprocess.annotate')
-        self.setRecordStoreHost('localhost')
+        self.setOutputQueue('preprocess.annotate')
+        self.setInputQueue('preprocess.crawl')
 
     def runloop(self):
-        in_queue = pq.ConsumerQueue('localhost', 'preprocess.crawl')
+        in_queue = self.getInputQueue()
         in_queue.register_callback(self.execute)
 
         print "Launching reader with FileSystem plugin..."

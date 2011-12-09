@@ -7,12 +7,11 @@ class LoadFeeds(plugin.BasePlugin):
         super(LoadFeeds, self).__init__()
 
     def init(self):
-        pass
-        self.setOutputQueueName('localhost', 'preprocess.annotate')
-        self.setRecordStoreHost('localhost')
+        self.setOutputQueue('preprocess.annotate')
+        self.setInputQueue('preprocess.crawl')
 
     def runloop(self):
-        queue = pq.ProducerQueue('localhost', 'preprocess.crawl')
+        queue = self.getInputQueue()
 
         # Read in all of the RSS feeds from rss.txt
         fp = open('rss.txt', 'r')

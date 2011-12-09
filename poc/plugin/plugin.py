@@ -20,6 +20,15 @@ class BasePlugin(object):
         config.read('config.ini')
         self.params = {}
         self.params['similarity_batch_count'] = config.get('similarity', 'batch_count')
+        self.params['crawl_host'] = config.get('queues', 'crawl_host')
+        self.params['annotate_host'] = config.get('queues', 'annotate_host')
+        self.params['similarity_host'] = config.get('queues', 'similarity_host')
+        self.params['completed_host'] = config.get('queues', 'completed_host')
+        self.params['object_host'] = config.get('storage', 'object_host')
+        self.params['matrix_host'] = config.get('storage', 'matrix_host')
+        
+        self.record_store = None
+        self.matrix_store = None
 
     # This should be overwritten by the plugin maker.  This will be
     #   called one time before the wave of execute()'s starts.
@@ -31,18 +40,16 @@ class BasePlugin(object):
     def execute(self, msg):
         raise NotImplementedError
     
-    def setInputQueueName(self, host, name):
-        self.input_queue = pq.ConsumerQueue(host, name)
+    def setInputQueue(self, name):
+        category, queue_name = name.split('.')
+        qhost = self.getQueueHost(queue_name)
+        self.input_queue = pq.ConsumerQueue(qhost, name)
         
-    def setOutputQueueName(self, host, name):
-        self.output_queue = pq.ProducerQueue(host, name)
-        
-    def setRecordStoreHost(self, host):
-        self.record_store = db.RecordStore(host)
+    def setOutputQueue(self, name):
+        category, queue_name = name.split('.')
+        qhost = self.getQueueHost(queue_name)
+        self.output_queue = pq.ProducerQueue(qhost, name)
 
-    def setMatrixStoreHost(self, host):
-        self.matrix_store = matrix.MatrixStore(host)
-        
     def getInputQueue(self):
         return self.input_queue
     
@@ -50,10 +57,19 @@ class BasePlugin(object):
         return self.output_queue
     
     def getRecordStore(self):
+        if self.record_store is None:
+            host = self.getParam('object_host')
+            self.record_store = db.RecordStore(host)
         return self.record_store
     
     def getMatrixStore(self):
+        if self.matrix_store is None:
+            host = self.getParam('matrix_host')
+            self.matrix_store = matrix.MatrixStore(host)
         return self.matrix_store
     
     def getParam(self, param_name):
         return self.params[param_name]
+
+    def getQueueHost(self, queue_name):
+        return self.params[queue_name + '_host']

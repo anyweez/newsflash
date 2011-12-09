@@ -34,10 +34,11 @@ class ImageSimilarity(plugin.BasePlugin):
             similarity = (6 - (r_delt + g_delt + b_delt)) / 6
             mstore.set_val(x=msg.primary, y=secondary, value=similarity)
         
-            # Pass the same message that we received.
-            outq = self.getOutputQueue()
-            outq.send(msg)
             secondary += 1
+        # Pass the same message that we received.
+        outq = self.getOutputQueue()    
+        outq.send(msg)
+            
 
     def runloop(self):
         in_queue = self.getInputQueue()

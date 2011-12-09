@@ -29,7 +29,8 @@ class FileSystem(plugin.BasePlugin):
         record.filename = msg.filename
         
         rs = self.getRecordStore()
-        rid = rs.store(record)
+        if not rs.record_exists(record):
+            rid = rs.store(record)
 
         # Create a new message for all RSS feeds.
         msg = pq.Message()

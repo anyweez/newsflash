@@ -1,3 +1,4 @@
+import ConfigParser
 from poc.db import db
 from poc.db import matrix
 from poc.powerqueue import pq
@@ -15,7 +16,10 @@ def load(plugin_type, plugin_name):
 #   the init() and execute() methods.
 class BasePlugin(object):
     def __init__(self):
-        pass
+        config = ConfigParser.RawConfigParser()
+        config.read('config.ini')
+        self.params = {}
+        self.params['similarity_batch_count'] = config.get('similarity', 'batch_count')
 
     # This should be overwritten by the plugin maker.  This will be
     #   called one time before the wave of execute()'s starts.
@@ -50,3 +54,6 @@ class BasePlugin(object):
     
     def getMatrixStore(self):
         return self.matrix_store
+    
+    def getParam(self, param_name):
+        return self.params[param_name]

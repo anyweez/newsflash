@@ -22,8 +22,8 @@ class RecordStore(object):
         self.execute("CREATE TABLE IF NOT EXISTS %s (rid INT NOT NULL AUTO_INCREMENT PRIMARY KEY, object TEXT, hash TEXT, identifier TEXT)" % (self.table_name,))
     
     def get(self, rid):
-        sql = "SELECT object FROM %s WHERE rid = %s"
-        self.cursor.execute(sql, (self.table_name, rid))
+        sql = "SELECT object FROM %s WHERE rid = %s" % (self.table_name, '%s')
+        self.cursor.execute(sql, (rid,))
         
         data = self.cursor.fetchone()
         return cPickle.loads(data[0])
@@ -32,7 +32,6 @@ class RecordStore(object):
         sql = "INSERT INTO %s (object, hash, identifier) VALUES (%s, %s, %s)" % (self.table_name, '%s', '%s', '%s')
         otext = cPickle.dumps(record)
         identifier = getattr(record, self.identifier)
-        print identifier
         self.cursor.execute(sql, 
             (otext, hashlib.sha224(otext).hexdigest(), identifier))
         
@@ -41,9 +40,9 @@ class RecordStore(object):
         return int(self.cursor.lastrowid)
     
     def update(self, rid, record):
-        sql = "UPDATE %s SET object = %s, hash = %s WHERE rid = %s"
+        sql = "UPDATE %s SET object = %s, hash = %s WHERE rid = %s" % (self.table_name, '%s', '%s', '%s')
         otext = cPickle.dumps(record)
-        self.cursor.execute(sql, (self.table_name, otext, hashlib.sha224(otext).hexdigest(), rid))
+        self.cursor.execute(sql, (otext, hashlib.sha224(otext).hexdigest(), rid))
     
     def getrange(self, rmin, rmax):
         sql = "SELECT object FROM %s WHERE rid >= %s AND rid <= %s ORDER BY rid DESC"
@@ -53,10 +52,10 @@ class RecordStore(object):
         return [cPickle.loads(row[0]) for row in rows]
     
     def record_exists(self, record):
-        sql = "SELECT rid FROM %s WHERE hash = %s"
+        sql = "SELECT rid FROM %s WHERE hash = %s" % (self.table_name, '%s')
         otext = cPickle.dumps(record)
         
-        self.cursor.execute(sql, (self.table_name, hashlib.sha224(otext).hexdigest()))
+        self.cursor.execute(sql, (hashlib.sha224(otext).hexdigest(),))
         result = self.cursor.fetchone()
         
         if result != None:

@@ -12,3 +12,4 @@ mkdir data
 mv photos.tar.gz data/
 cd data
 tar zfx photos.tar.gz
+rm photos.tar.gz

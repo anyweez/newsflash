@@ -6,4 +6,9 @@ sudo apt-get -y install python-mysqldb python-feedparser python-gevent python-be
 sudo pip install pika==0.9.5
 sudo pip install pycassa
 
-git clone git://github.com/luke-segars/newsflash
+cd newsflash
+wget http://10.240.107.17/photos.tar.gz
+mkdir data
+mv photos.tar.gz data/
+cd data
+tar zfx photos.tar.tz

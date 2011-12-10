@@ -11,4 +11,4 @@ wget http://10.240.107.17/photos.tar.gz
 mkdir data
 mv photos.tar.gz data/
 cd data
-tar zfx photos.tar.tz
+tar zfx photos.tar.gz

@@ -16,10 +16,10 @@ echo "killing any running newsflash python instances..."
 JOBS=$(ps aux | grep 'python launch.py' | grep -v grep | awk '{ print $2}')
 kill ${JOBS} || true # possible that this line will fail
 
-# Nuke rabbitmq queues?
-
-
-#echo "DROP TABLE image;" | mysql -u newsflash newsflash --password="rDZtewnGUULH2Jjs"
+# Set the config file's local ip for Cassandra to the machine's local ip.
+IP_ADDR=$(ip addr | grep eth0 | grep inet | awk '{print $2}' | cut -d / -f 1)
+echo "Setting matrix_host to ${IP_ADDR}"
+sed s/^matrix_host.*$/matrix_host\ =\ ${IP_ADDR}/ --in-place config.ini
 
 # Launch all of the things in the background
 echo "Launching a pile of newsflash instances..."

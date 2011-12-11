@@ -17,7 +17,7 @@ application = app.wsgifunc()
 # web.py 0.2 way
 #application = web.wsgifunc(web.webpyfunc(urls, globals()))
 
-output_queue = pq.ProducerQueue("localhost", "preprocess.urlcrawl")
+output_queue = pq.ProducerQueue("ec2-75-101-176-237.compute-1.amazonaws.com", "urlcrawl")
 
 def queueUrl(url):
     message = pq.Message()

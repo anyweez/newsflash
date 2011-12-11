@@ -17,6 +17,7 @@ python-gevent
 python-beautifulsoup
 python-imaging
 python-numpy
+python-webpy
 python-pip # (for pika)
 
 python-pika (via pip): sudo pip install pika==0.9.5

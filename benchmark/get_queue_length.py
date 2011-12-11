@@ -8,7 +8,7 @@ import pika, sys, time
 ##   python get_queue_length.py preprocess.crawl preprocess.annotate
 
 # The poll frequency in seconds.
-poll_frequency = .5
+poll_frequency = .1
 
 # Get the name of all queues from the command line
 queues = []

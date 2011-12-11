@@ -26,4 +26,5 @@ while True:
 		counts.append(str(m.method.message_count))
 		
 	print '\t'.join(counts)
+	sys.stdout.flush()
 	time.sleep(poll_frequency)

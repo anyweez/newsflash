@@ -94,6 +94,7 @@ class CompletionNotifier(plugin.BasePlugin):
         self.rid_to_waiters = { } # Keep a list of rids that we should actually note the completions of, and map that to the handles to the sockets we should notify upon completion.
 
     def init(self):
+        self.setInputQueue('completed')
         #self.setRecordStoreHost('localhost')
         #self.setMatrixStoreHost('localhost')
         pass
@@ -108,9 +109,10 @@ class CompletionNotifier(plugin.BasePlugin):
                 client.send("%s %s" % (msg.secondary_min, msg.secondary_max))
 
     def handle_amqp(self):
-        in_queue = pq.ConsumerQueue('localhost', 'preprocess.completed')
-        in_queue.register_callback(self.amqp_completed_msg)
         print "Launching AMQP thread..."
+        #in_queue = pq.ConsumerQueue(, 'completed')
+        in_queue = self.getInputQueue()
+        in_queue.register_callback(self.amqp_completed_msg)
         in_queue.start_waiting()
 
     def run_server(self):

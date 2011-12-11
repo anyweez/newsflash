@@ -1,6 +1,8 @@
 import PIL.Image as Image
 from poc.plugin import plugin
 from poc.powerqueue import pq
+import sys
+import time
 
 class ImageSimilarity(plugin.BasePlugin):
     def __init__(self):
@@ -14,11 +16,11 @@ class ImageSimilarity(plugin.BasePlugin):
     def execute(self, msg):
         secondary = int(msg.secondary_min)
         while secondary < (int(msg.secondary_max) + 1):
-            print "Comparing histograms of rid %s and rid %s" % (msg.primary, secondary)
+
+            print time.time(), "similarity %s and %s" % (msg.primary, secondary)
             rstore = self.getRecordStore()
             r1 = rstore.get(msg.primary)
             r2 = rstore.get(secondary)
-
             # Difference in individual histogram values seems
             #   to work pretty well.
             r_delt = sum([abs(a - b) for a, b in zip(r1.r_hist, r2.r_hist)])
@@ -43,5 +45,5 @@ class ImageSimilarity(plugin.BasePlugin):
     def runloop(self):
         in_queue = self.getInputQueue()
         in_queue.register_callback(self.execute)
-        print "Launching similarity..."
+        print >> sys.stderr, "Launching similarity..."
         in_queue.start_waiting()

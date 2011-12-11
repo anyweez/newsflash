@@ -7,7 +7,7 @@ class WordIncidence(plugin.BasePlugin):
         super(WordIncidence, self).__init__()
 
     def init(self):
-        self.setInputQueue('preprocess.similarity')
+        self.setInputQueue('similarity')
 
     def execute(self, msg):
         print "Word Incidence: processing incidence between rid %s and rid %s" % (msg.first, msg.second)

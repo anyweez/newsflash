@@ -14,8 +14,8 @@ class FileSystem(plugin.BasePlugin):
         super(FileSystem, self).__init__()
 
     def init(self):
-        self.setOutputQueue('preprocess.annotate')
-        self.setInputQueue('preprocess.crawl')
+        self.setOutputQueue('annotate')
+        self.setInputQueue('crawl')
 
     def runloop(self):
         in_queue = self.getInputQueue()

@@ -9,8 +9,8 @@ class ImageAnnotator(plugin.BasePlugin):
         super(ImageAnnotator, self).__init__()
         
     def init(self):
-        self.setOutputQueue('preprocess.similarity')
-        self.setInputQueue('preprocess.annotate')
+        self.setOutputQueue('similarity')
+        self.setInputQueue('annotate')
         
     def send_messages(self, rid):
         message=pq.Message()

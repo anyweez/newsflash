@@ -8,8 +8,8 @@ class ImageSimilarity(plugin.BasePlugin):
         super(ImageSimilarity, self).__init__()
 
     def init(self):
-        self.setOutputQueue('preprocess.completed')
-        self.setInputQueue('preprocess.similarity')
+        self.setOutputQueue('completed')
+        self.setInputQueue('similarity')
 
     def execute(self, msg):
         secondary = int(msg.secondary_min)

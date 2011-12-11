@@ -41,13 +41,11 @@ class BasePlugin(object):
         raise NotImplementedError
     
     def setInputQueue(self, name):
-        category, queue_name = name.split('.')
-        qhost = self.getQueueHost(queue_name)
+        qhost = self.getQueueHost(name)
         self.input_queue = pq.ConsumerQueue(qhost, name)
         
     def setOutputQueue(self, name):
-        category, queue_name = name.split('.')
-        qhost = self.getQueueHost(queue_name)
+        qhost = self.getQueueHost(name)
         self.output_queue = pq.ProducerQueue(qhost, name)
 
     def getInputQueue(self):

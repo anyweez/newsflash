@@ -15,8 +15,8 @@ class PowerQueue(object):
         self._conn = pika.BlockingConnection(pika.ConnectionParameters(host=host))
         self._chan = self._conn.channel()
         
-        self.queue_name = queue_name
-        self._chan.queue_declare(queue='preprocess.' + queue_name, durable=True)
+        self.queue_name = 'preproces.' + queue_name
+        self._chan.queue_declare(queue=queue_name, durable=True)
         self._chan.basic_qos(prefetch_count = 1)
         
     def __del__(self):

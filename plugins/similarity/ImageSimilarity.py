@@ -44,6 +44,7 @@ class ImageSimilarity(plugin.BasePlugin):
             else:
                 # Otherwise the data hasnt' been set yet and we should bail for now.
                 self.defer(msg)
+                return
         # Pass the same message that we received.
         outq = self.getOutputQueue()    
         outq.send(msg)

@@ -64,6 +64,7 @@ class BasePlugin(object):
             self.deferral_queue = pq.ProducerQueue(
                 self.getQueueHost(self.input_queue_name), self.input_queue_name)
         
+        print "Deferring message to %s." % self.input_queue_name
         self.deferral_queue.send(msg)
     
     def getRecordStore(self):

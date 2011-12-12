@@ -17,12 +17,10 @@ application = app.wsgifunc()
 # web.py 0.2 way
 #application = web.wsgifunc(web.webpyfunc(urls, globals()))
 
-output_queue = pq.ProducerQueue("ec2-75-101-176-237.compute-1.amazonaws.com", "urlcrawl")
-
 def queueUrl(url):
     message = pq.Message()
     message.url = url
-    output_queue.send(message)
+    WebAPI.output_queue.send(message)
 
 class AddToCorpus:
     def POST(self):
@@ -54,10 +52,12 @@ class WebAPI(plugin.BasePlugin):
     def __init__(self):
         # Call your own constructor
         super(WebAPI, self).__init__()
+        WebAPI.instance = self
 
     def init(self):
+        WebAPI.output_queue = pq.ProducerQueue("ec2-75-101-176-237.compute-1.amazonaws.com", "urlcrawl")
         #self.setRecordStoreHost('localhost')
-        #self.setMatrixStoreHost('localhost')
+        WebAPI.instance.setMatrixStoreHost('localhost')
         #self.setOutputQueueName('preprocess.crawl')
         pass
 

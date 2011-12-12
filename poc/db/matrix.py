@@ -88,25 +88,24 @@ class CassandraMatrixStore(object):
         config = ConfigParser.RawConfigParser()
         config.read('config.ini')
         self.db_host = config.get('storage', 'matrix_host')
-        self.table_name = config.get('storage', 'matrix_name')
-        
+        self.table_name = config.get('storage', 'matrix_name') 
         self.db_pool = pycassa.ConnectionPool('newsflash', server_list=['%s:9160' % self.db_host])
         self.pool_cf = pycassa.ColumnFamily(self.db_pool, self.table_name)
         
     def set_val(self, x, y, val):
-<<<<<<< HEAD
         tInit = time.time()
         self.pool_cf.insert(str(x), { str(y) : str(val) })
+        self.pool_cf.insert(str(y), { str(x) : str(val) })
         tEnd = time.time()
         tTotalSetCass = tEnd-tInit
         self.times["tTotalSetCass"].append([tInit,tTotalSetCass])
-        self.check_counter()
-        
+        self.check_counter() 
+    
     def get_val(self, x, y):
         tInit = time.time()
-        result = self.pool_cf.get(str(x), str(y))
+        result = self.pool_cf.get(str(x), int(y))
         tEnd = time.time()
-        tTotalGetCass = tEnd-tInit
+        tTotalGetCass = tEnd-tInit 
         self.times["tTotalGetCass"].append([tInit,tTotalGetCass])
         self.check_counter()
         return float(result[x])
@@ -114,17 +113,6 @@ class CassandraMatrixStore(object):
     def getrow(self, x):
         tInit = time.time()
         result = self.pool_cf.get(str(x))
-=======
-        self.pool_cf.insert(x, { str(y) : str(val) })
-        self.pool_cf.insert(y, { str(x) : str(val) })
-    
-    def get_val(self, x, y):
-        result = self.pool_cf.get(int(x), int(y))
-        return float(result[x])
-    
-    def getrow(self, x):
-        result = self.pool_cf.get(int(x))
->>>>>>> c6b1feddfa0efe505d9d0b2283d8af06fbd5a19e
         output = {}
         for key in result:
             output[int(key)] = float(key)

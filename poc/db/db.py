@@ -49,7 +49,7 @@ class RecordStore(object):
     def update(self, rid, record):
         sql = "UPDATE %s SET object = %s, hash = %s WHERE rid = %s" % (self.table_name, '%s', '%s', '%s')
         otext = cPickle.dumps(record)
-        self.cursor.execute(sql, (otext, hashlib.sha224(otext).hexdigest(), rid))
+        self.cursor.execute(sql, (otext, hashlib.sha1(otext).hexdigest(), rid))
     
     def getrange(self, rmin, rmax):
         sql = "SELECT object FROM %s WHERE rid >= %s AND rid <= %s ORDER BY rid DESC"
@@ -62,7 +62,7 @@ class RecordStore(object):
         sql = "SELECT rid FROM %s WHERE hash = %s" % (self.table_name, '%s')
         otext = cPickle.dumps(record)
         
-        self.cursor.execute(sql, (hashlib.sha224(otext).hexdigest(),))
+        self.cursor.execute(sql, (hashlib.sha1(otext).hexdigest(),))
         result = self.cursor.fetchone()
         
         if result != None:

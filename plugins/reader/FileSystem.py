@@ -25,6 +25,8 @@ class FileSystem(plugin.BasePlugin):
         in_queue.start_waiting()
         
     def execute(self, msg):
+        print "reading from", msg.filename
+        sys.stdout.flush()
         record = db.Record()
         record.filename = msg.filename
         

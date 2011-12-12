@@ -14,37 +14,38 @@ class RecordStore(object):
         config.read('config.ini')
         self.table_name = config.get('storage', 'object_type')
         self.identifier = config.get('storage', 'object_identifier')
-    
+
         self.conn = MySQLdb.connect(host, user, pw, db)
         self.cursor = self.conn.cursor()
 
         # Make sure that the table exists.        
-        self.execute("CREATE TABLE IF NOT EXISTS %s (rid INT NOT NULL AUTO_INCREMENT PRIMARY KEY, object TEXT, hash TEXT, identifier TEXT)" % (self.table_name,))
-    
+        self.execute("CREATE TABLE IF NOT EXISTS %s (rid INT NOT NULL AUTO_INCREMENT PRIMARY KEY, object TEXT, hash VARCHAR(40), identifier TEXT, UNIQUE INDEX(hash) )" % (self.table_name,))
+
     def get(self, rid):
         sql = "SELECT object FROM %s WHERE rid = %s" % (self.table_name, '%s')
         self.cursor.execute(sql, (rid,))
-        
+
         data = self.cursor.fetchone()
         return cPickle.loads(data[0])
-    
+
     def store(self, record):
         sql = "INSERT INTO %s (object, hash, identifier) VALUES (%s, %s, %s)" % (self.table_name, '%s', '%s', '%s')
         otext = cPickle.dumps(record)
         identifier = getattr(record, self.identifier)
+        sha1sum = hashlib.sha1(otext).hexdigest()
         self.cursor.execute(sql, 
-            (otext, hashlib.sha224(otext).hexdigest(), identifier))
-      
+            (otext, sha1sum, identifier))
+
         # Fetch the ID of the record we just inserted. 
         sql = "SELECT rid FROM %s WHERE hash = %s" % (self.table_name, '%s')
-        self.cursor.execute(sql, (hashlib.sha224(otext).hexdigest(),))
- 
+        self.cursor.execute(sql, (sha1sum))
+
         response = self.cursor.fetchone()
 
         # Returns the ID of the last item inserted on this connection.
         #   This should be exactly what we need.
         return int(response[0])
-    
+
     def update(self, rid, record):
         sql = "UPDATE %s SET object = %s, hash = %s WHERE rid = %s" % (self.table_name, '%s', '%s', '%s')
         otext = cPickle.dumps(record)

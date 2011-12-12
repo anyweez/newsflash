@@ -18,7 +18,7 @@ class PowerQueue(object):
         self.queue_name = 'preprocess.' + queue_name
         print 'Connecting to queue %s on host %s' % (self.queue_name, host)
         self._chan.queue_declare(queue=self.queue_name)#, durable=True)
-        self._chan.basic_qos(prefetch_count = 1)
+        self._chan.basic_qos(prefetch_count = 0, prefetch_size = 0)
         
     def __del__(self):
         self._conn.close()

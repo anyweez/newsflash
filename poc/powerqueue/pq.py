@@ -16,6 +16,7 @@ class PowerQueue(object):
         self._chan = self._conn.channel()
         
         self.queue_name = 'preprocess.' + queue_name
+        print 'Connecting to queue %s on host %s' % (self.queue_name, host)
         self._chan.queue_declare(queue=queue_name, durable=True)
         self._chan.basic_qos(prefetch_count = 1)
         

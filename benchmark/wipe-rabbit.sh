@@ -13,9 +13,9 @@ echo "DROP TABLE IF EXISTS image" | mysql -u newsflash --password=rDZtewnGUULH2J
 # This is somewhat ridiculous.
 echo "purging AMQP queues"
 for QUEUE in preprocess.crawl preprocess.annotate preprocess.similarity preprocess.completed ; do
-	amqp-declare-queue -d -q ${QUEUE}
+	amqp-declare-queue -q ${QUEUE}
 	amqp-delete-queue -q ${QUEUE}
-	amqp-declare-queue -d -q ${QUEUE}
+	amqp-declare-queue -q ${QUEUE}
 done
 
 echo "Good to go.  Start benchmark/launch_all_worker.sh on all the nodes."

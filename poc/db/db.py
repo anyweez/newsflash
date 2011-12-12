@@ -58,6 +58,16 @@ class RecordStore(object):
         rows = self.cursor.fetchall()
         return [cPickle.loads(row[0]) for row in rows]
     
+    def record_loaded(self, rid):
+        sql = "SELECT object fROM records WHERE rid =%s"
+        self.cursor.execute(sql, (rid,))
+        data = self.cursor.fetchone()
+        if data == None:
+            return False
+        else:
+            return True
+        
+    
     def record_exists(self, record):
         sql = "SELECT rid FROM %s WHERE hash = %s" % (self.table_name, '%s')
         otext = cPickle.dumps(record)

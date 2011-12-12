@@ -15,6 +15,7 @@ class RSS(plugin.BasePlugin):
         monkey.patch_all()
         
     def init(self):
+        self.setInputQueue('crawl')
         self.setOutputQueue('annotate')
         
     def process_record(self, record, outq):
@@ -94,7 +95,7 @@ class RSS(plugin.BasePlugin):
             print "WARNING: error running greenlets to analyze articles."
 
     def runloop(self):
-        in_queue = pq.ConsumerQueue('localhost', 'crawl')
+        in_queue = self.getInputQueue()
         in_queue.register_callback(self.execute)
         print "Launching reader with RSS plugin..."
         in_queue.start_waiting()

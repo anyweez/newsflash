@@ -1,4 +1,4 @@
-import numpy, logging, sys
+import numpy, logging, sys, math
 from gensim import corpora, models
 from poc.plugin import plugin
 from poc.powerqueue import pq
@@ -17,6 +17,18 @@ class ANNOTATE(plugin.BasePlugin):
         message=pq.Message()
         message.first = rid
         pqueue = self.getOutputQueue()
+        
+        size = int(math.ceil(rid / int(self.getParam('similarity_batch_count'))))
+        
+        for i in xrange(0, size):
+            message.secondary_min = i * size
+            if (i * (size + 1) - 1) < (rid - 1):
+                message.secondary_max = i * (size + 1) - 1
+            else:
+                message.secondary_max = rid - 1
+            pqueue.send(message)
+            
+            
         for i in range(1,rid):
             message.second = i #i goest to rid - 1
             pqueue.send(message) #push messages to preprocess.similarity

@@ -94,6 +94,7 @@ class CassandraMatrixStore(object):
         self.pool_cf = pycassa.ColumnFamily(self.db_pool, self.table_name)
         
     def set_val(self, x, y, val):
+<<<<<<< HEAD
         tInit = time.time()
         self.pool_cf.insert(str(x), { str(y) : str(val) })
         tEnd = time.time()
@@ -113,6 +114,17 @@ class CassandraMatrixStore(object):
     def getrow(self, x):
         tInit = time.time()
         result = self.pool_cf.get(str(x))
+=======
+        self.pool_cf.insert(x, { str(y) : str(val) })
+        self.pool_cf.insert(y, { str(x) : str(val) })
+    
+    def get_val(self, x, y):
+        result = self.pool_cf.get(int(x), int(y))
+        return float(result[x])
+    
+    def getrow(self, x):
+        result = self.pool_cf.get(int(x))
+>>>>>>> c6b1feddfa0efe505d9d0b2283d8af06fbd5a19e
         output = {}
         for key in result:
             output[int(key)] = float(key)

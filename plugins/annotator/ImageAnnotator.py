@@ -22,9 +22,9 @@ class ImageAnnotator(plugin.BasePlugin):
         size = int(math.ceil(rid / int(self.getParam('similarity_batch_count'))))
         
         for i in xrange(0, size):
-            message.secondary_min = i * size
-            if (i * (size + 1) - 1) < (rid - 1):
-                message.secondary_max = i * (size + 1) - 1
+            message.secondary_min = 1 + (i * size)
+            if ((i + 1) * size) < rid:
+                message.secondary_max = (i + 1) * size
             else:
                 message.secondary_max = rid - 1
             pqueue.send(message)

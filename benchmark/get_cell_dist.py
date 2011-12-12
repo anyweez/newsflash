@@ -18,7 +18,7 @@ def get_timestamps_for_id(cf, rid):
   for i in xrange(num_buckets+1):
     distr.append(len(filter(lambda x: x <= math.ceil(min_time + (i * delta)), timestamps)))
 
-  return (min_time, max_time, distr)
+  return (min_time, max_time, len(timestamps), distr)
    
 if len(sys.argv) is 2:
   target_id = int(sys.argv[1]) 
@@ -40,7 +40,7 @@ else:
   nums = cursor.fetchall()
   for num in nums:
     try:
-      min_time, max_time, distr = get_timestamps_for_id(cf, int(num[0]))
-      print '%d\t%s\t%s\t%f\t%s' % (int(num[0]), min_time, max_time, (max_time - min_time) / float(num_buckets), ','.join([str(x) for x in distr]))
+      min_time, max_time, count, distr = get_timestamps_for_id(cf, int(num[0]))
+      print '%d\t%s\t%s\t%f\t%d\t%s' % (int(num[0]), min_time, max_time, (max_time - min_time) / float(num_buckets), count, ','.join([str(x) for x in distr]))
     except pycassa.cassandra.c10.ttypes.NotFoundException:
       sys.stderr.write("No data for id %d\n" % int(num[0]))

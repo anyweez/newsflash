@@ -84,7 +84,6 @@ class MatrixStore(object):
     
 class CassandraMatrixStore(object):
     def __init__(self, hosts=[]):
-        
         config = ConfigParser.RawConfigParser()
         config.read('config.ini')
         self.db_host = config.get('storage', 'matrix_host')
@@ -92,6 +91,18 @@ class CassandraMatrixStore(object):
         self.db_pool = pycassa.ConnectionPool('newsflash', server_list=['%s:9160' % self.db_host])
         self.pool_cf = pycassa.ColumnFamily(self.db_pool, self.table_name)
         
+        # Create the counters' dictionary with the first element empty
+#   Elements will be updated for each call, including the time when the call was made and the time lapse
+        self.times = {"tTotalSetSQL" : [],
+                      "tTotalGetSQL" : [],
+                      "tTotalGetrowSQL" : [],
+                      "tTotalSetCass" : [],
+                      "tTotalGetCass" : [],
+                      "tTotalGetrowCass" : [],
+                      "N" : [],
+                      "counterToSave" : 0}
+        self.maxCounterToSave = 1000
+
     def set_val(self, x, y, val):
         tInit = time.time()
         self.pool_cf.insert(str(x), { str(y) : str(val) })
@@ -99,7 +110,7 @@ class CassandraMatrixStore(object):
         tEnd = time.time()
         tTotalSetCass = tEnd-tInit
         self.times["tTotalSetCass"].append([tInit,tTotalSetCass])
-        self.check_counter() 
+        self.check_counter(x) 
     
     def get_val(self, x, y):
         tInit = time.time()
@@ -119,5 +130,14 @@ class CassandraMatrixStore(object):
         tEnd = time.time()
         tTotalGetrowCass = tEnd-tInit  	
         self.times["tTotalGetrowCass"].append([tInit,tTotalGetrowCass])
-        self.check_counter()
+        self.check_counter(x)
         return output
+
+    def check_counter(self,Nval):
+        self.times["N"].append(Nval)
+        self.times["counterToSave"] += 1        
+        if (self.times["counterToSave"] > self.maxCounterToSave):
+            file = open("nodelatency.json", "w") # write mode
+            json.dump(self.times, file)    
+            print "1000 iterations saved"       
+            self.times["counterToSave"] = 0

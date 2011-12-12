@@ -1,6 +1,7 @@
 from poc.plugin import plugin
 from poc.powerqueue import pq
 from poc.db import db
+import sys
 
 # Pulls messages from preprocess.crawl and expects the FILENAME field.
 #
@@ -25,6 +26,8 @@ class FileSystem(plugin.BasePlugin):
         in_queue.start_waiting()
         
     def execute(self, msg):
+        print "reading from", msg.filename
+        sys.stdout.flush()
         record = db.Record()
         record.filename = msg.filename
         

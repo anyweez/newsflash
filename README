@@ -5,7 +5,7 @@ The queue's name describes the function of the puller.
 preprocess.crawl
 preprocess.annotate
 preprocess.similarity
-
+preprocess.completed
 
 Dependencies:
 
@@ -15,7 +15,10 @@ python-mysqldb
 python-feedparser
 python-gevent
 python-beautifulsoup
+python-imaging
 python-numpy
+python-webpy
 python-pip # (for pika)
 
 python-pika (via pip): sudo pip install pika==0.9.5
+python-pycassa: sudo pip install pycassa

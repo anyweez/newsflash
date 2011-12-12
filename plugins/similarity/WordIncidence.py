@@ -9,8 +9,7 @@ class WordIncidence(plugin.BasePlugin):
         super(WordIncidence, self).__init__()
 
     def init(self):
-        self.setRecordStoreHost('localhost')
-        self.setMatrixStoreHost('localhost')
+        self.setInputQueue('similarity')
 
     def send_back_messages(self, rid):
         message=pq.Message()
@@ -65,10 +64,10 @@ class WordIncidence(plugin.BasePlugin):
         similarity = numpy.dot(values1,values2)        
         print similarity
         mstore = self.getMatrixStore()
-        mstore.set_val(x=msg.first, y=msg.second, value=similarity)
+        mstore.set_val(x=msg.first, y=msg.second, val=similarity)
 
     def runloop(self):
-        in_queue = pq.ConsumerQueue('localhost', 'preprocess.similarity')
+        in_queue = self.getInputQueue()
         in_queue.register_callback(self.execute)
         print "Launching similarity..."
         in_queue.start_waiting()

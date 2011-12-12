@@ -15,6 +15,8 @@ class ImageSimilarity(plugin.BasePlugin):
 
     def execute(self, msg):
         secondary = int(msg.secondary_min)
+        mstore = self.getMatrixStore()
+        
         while secondary < (int(msg.secondary_max) + 1):
             print time.time(), "similarity %s and %s" % (msg.primary, secondary)
             rstore = self.getRecordStore()
@@ -31,7 +33,6 @@ class ImageSimilarity(plugin.BasePlugin):
                 g_delt = sum([abs(a - b) for a, b in zip(r1.g_hist, r2.g_hist)])
                 b_delt = sum([abs(a - b) for a, b in zip(r1.b_hist, r2.b_hist)])
 
-                mstore = self.getMatrixStore()
                 # In my tests it seems like 2 is the largest delta
                 #   value that can be generated for a single channel.
                 #   Since there are three channels, the max value is
@@ -42,7 +43,7 @@ class ImageSimilarity(plugin.BasePlugin):
         
                 secondary += 1
             else:
-                # Otherwise the data hasnt' been set yet and we should bail for now.
+                # Otherwise the data hasn't been set yet and we should bail for now.
                 self.defer(msg)
                 return
         # Pass the same message that we received.

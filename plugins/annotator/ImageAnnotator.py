@@ -19,15 +19,22 @@ class ImageAnnotator(plugin.BasePlugin):
         
         # We should be generating similarity_batch_count messages, each
         #   equal in size.  This value can be changed in config.ini.
-        size = int(math.ceil(rid / int(self.getParam('similarity_batch_count'))))
+        batch_count = int(self.getParam('similarity_batch_count'))
+        size = int(math.ceil(rid / batch_count))
         
-        for i in xrange(0, size):
-            message.secondary_min = 1 + (i * size)
-            if ((i + 1) * size) < rid:
-                message.secondary_max = (i + 1) * size
-            else:
-                message.secondary_max = rid - 1
+        if size < 1:
+            size = 1
+            message.secondary_min = 1
+            message.secondary_max = rid - 1
             pqueue.send(message)
+        else: 
+            for i in xrange(0, batch_count):
+                message.secondary_min = 1 + (i * size)
+                if ((i + 1) * size) < rid:
+                    message.secondary_max = (i + 1) * size
+                else:
+                    message.secondary_max = rid - 1
+                pqueue.send(message)
     
     def execute(self, msg):
         print "Annotating: %s" % (msg.rid)

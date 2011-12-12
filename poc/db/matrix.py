@@ -61,8 +61,8 @@ class CassandraMatrixStore(object):
         self.pool_cf = pycassa.ColumnFamily(self.db_pool, self.table_name)
         
     def set_val(self, x, y, val):
-        self.pool_cf.insert(int(x), { str(y) : str(val) })
-        self.pool_cf.insert(int(y), { str(x) : str(val) })
+        self.pool_cf.insert(str(x), { str(y) : str(val) })
+        self.pool_cf.insert(str(y), { str(x) : str(val) })
     
     def get_val(self, x, y):
         result = self.pool_cf.get(str(x), int(y))

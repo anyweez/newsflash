@@ -42,11 +42,11 @@ class BasePlugin(object):
     
     def setInputQueue(self, name):
         qhost = self.getQueueHost(name)
-        self.input_queue = pq.ConsumerQueue(qhost, 'preprocess.' + name)
+        self.input_queue = pq.ConsumerQueue(qhost, name)
         
     def setOutputQueue(self, name):
         qhost = self.getQueueHost(name)
-        self.output_queue = pq.ProducerQueue(qhost, 'preprocess.' + name)
+        self.output_queue = pq.ProducerQueue(qhost, name)
 
     def getInputQueue(self):
         return self.input_queue

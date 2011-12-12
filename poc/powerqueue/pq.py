@@ -53,14 +53,13 @@ class ConsumerQueue(PowerQueue):
     def __init__(self, host, queue_name):
         super(ConsumerQueue, self).__init__(host, queue_name)
         self._callback = None
-        self.queue_name = queue_name
-        
+
     def __del__(self):
         super(ConsumerQueue, self).__del__()
 
     def register_callback(self, func):
         self._callback = func
-        
+
     # Start receiving events and call the callback function
     #   once a new event arrives.
     def start_waiting(self):

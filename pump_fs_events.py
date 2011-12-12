@@ -10,9 +10,12 @@ pqueue = pq.ProducerQueue('localhost', sys.argv[1])
 
 files = os.listdir(sys.argv[2])
 
-for f in files:
-    msg = pq.Message()
-    msg.filename = f
-    pqueue.send(msg)
+for i, f in enumerate(files):
+    if i < 2000:
+        msg = pq.Message()
+        msg.filename = f
+        pqueue.send(msg)
+    else:
+        break
 
 print 'Generated messages for %d files.' % len(files)

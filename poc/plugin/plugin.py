@@ -29,6 +29,7 @@ class BasePlugin(object):
         
         self.record_store = None
         self.matrix_store = None
+        self.deferral_queue = None
 
     # This should be overwritten by the plugin maker.  This will be
     #   called one time before the wave of execute()'s starts.
@@ -41,10 +42,12 @@ class BasePlugin(object):
         raise NotImplementedError
     
     def setInputQueue(self, name):
+        self.input_queue_name = name
         qhost = self.getQueueHost(name)
         self.input_queue = pq.ConsumerQueue(qhost, name)
         
     def setOutputQueue(self, name):
+        self.output_queue_name = name
         qhost = self.getQueueHost(name)
         self.output_queue = pq.ProducerQueue(qhost, name)
 
@@ -53,6 +56,15 @@ class BasePlugin(object):
     
     def getOutputQueue(self):
         return self.output_queue
+    
+    # Call this method if you don't have enough information to operate the desired
+    #   stage and want to cast the message back into the queue.
+    def defer(self, msg):
+        if self.deferral_queue is None:
+            self.deferral_queue = pq.ProducerQueue(
+                self.getQueueHost(self.input_queue_name), self.input_queue_name)
+        
+        self.deferral_queue.send(msg)
     
     def getRecordStore(self):
         if self.record_store is None:

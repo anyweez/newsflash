@@ -1,6 +1,7 @@
 from poc.plugin import plugin
 from poc.powerqueue import pq
 from poc.db import db
+import sys
 
 # Pulls messages from preprocess.crawl and expects the FILENAME field.
 #

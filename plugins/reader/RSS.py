@@ -94,7 +94,7 @@ class RSS(plugin.BasePlugin):
             print "WARNING: error running greenlets to analyze articles."
 
     def runloop(self):
-        in_queue = pq.ConsumerQueue('localhost', 'preprocess.crawl')
+        in_queue = pq.ConsumerQueue('localhost', 'crawl')
         in_queue.register_callback(self.execute)
         print "Launching reader with RSS plugin..."
         in_queue.start_waiting()

@@ -34,10 +34,16 @@ class RecordStore(object):
         identifier = getattr(record, self.identifier)
         self.cursor.execute(sql, 
             (otext, hashlib.sha224(otext).hexdigest(), identifier))
-        
+      
+        # Fetch the ID of the record we just inserted. 
+        sql = "SELECT rid FROM %s WHERE hash = %s" % (self.table_name, '%s')
+        self.cursor.execute(sql, (hashlib.sha224(otext).hexdigest(),))
+ 
+        response = self.cursor.fetchone()
+
         # Returns the ID of the last item inserted on this connection.
         #   This should be exactly what we need.
-        return int(self.cursor.lastrowid)
+        return int(response[0])
     
     def update(self, rid, record):
         sql = "UPDATE %s SET object = %s, hash = %s WHERE rid = %s" % (self.table_name, '%s', '%s', '%s')

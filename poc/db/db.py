@@ -33,7 +33,7 @@ class RecordStore(object):
         otext = cPickle.dumps(record)
         identifier = getattr(record, self.identifier)
         self.cursor.execute(sql, 
-            (otext, hashlib.sha224(otext).hexdigest(), identifier))
+            (otext, hashlib.sha1(otext).hexdigest(), identifier))
       
         # Fetch the ID of the record we just inserted. 
         sql = "SELECT rid FROM %s WHERE hash = %s" % (self.table_name, '%s')

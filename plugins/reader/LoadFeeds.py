@@ -7,11 +7,10 @@ class LoadFeeds(plugin.BasePlugin):
         super(LoadFeeds, self).__init__()
 
     def init(self):
-        self.setOutputQueue('annotate')
-        self.setInputQueue('crawl')
+        self.setOutputQueue('crawl')
 
     def runloop(self):
-        queue = self.getInputQueue()
+        queue = self.getOutputQueue()
 
         # Read in all of the RSS feeds from rss.txt
         fp = open('rss.txt', 'r')

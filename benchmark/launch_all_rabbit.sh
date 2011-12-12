@@ -13,7 +13,7 @@ mkdir logs
 
 # Start the queue length watcher in the background
 echo "Starting queue length watcher..."
-python benchmark/get_queue_length.py preprocess.crawl preprocess.annotate preprocess.similarity preprocess.completed > logs/QueueLengthMonitor.log &
+python benchmark/get_queue_length_rabbitmqctl.py > logs/QueueLengthMonitor.log &
 
 sleep 2s
 

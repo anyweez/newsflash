@@ -1,6 +1,6 @@
-import feedparser, urllib2, httplib, gevent
+import feedparser, urllib2, httplib#, gevent
 
-from gevent import monkey
+#from gevent import monkey
 from poc.plugin import plugin
 from poc.db import db
 from poc.fulltext_parser import articletxt
@@ -12,7 +12,7 @@ class RSS(plugin.BasePlugin):
     def __init__(self):
         # Call your own constructor
         super(RSS, self).__init__()
-        monkey.patch_all()
+#        monkey.patch_all()
         
     def init(self):
         self.setInputQueue('crawl')
@@ -71,9 +71,8 @@ class RSS(plugin.BasePlugin):
         feed_data = feedparser.parse(msg.url)
         channel, items = feed_data.feed, feed_data.entries
     
-        pqueue = self.getOutputQueue()
+        outq = self.getOutputQueue()
         
-        gthreads = []
         for item in items:
             record = db.Record()
             if item.has_key('title'):
@@ -86,14 +85,17 @@ class RSS(plugin.BasePlugin):
                 record.author = item['author']
             if item.has_key('link'):
                 record.link = item['link']
-                gthreads.append(gevent.spawn(self.process_record, record, pqueue))
-
-        try:
-            gevent.joinall(gthreads)
-            print "%d new articles added." % sum([1 for result in gthreads if result.value is True])
-        except:
-            print "WARNING: error running greenlets to analyze articles."
-
+                
+            rstore = self.getRecordStore()
+            if not rstore.record_exists(record):
+                # Store the new record in the database.
+                rid = rstore.store(record)
+            
+                # Generate a message for the annotation queue. 
+                msg = pq.Message()
+                msg.rid = rid 
+                outq.send(msg)
+                    
     def runloop(self):
         in_queue = self.getInputQueue()
         in_queue.register_callback(self.execute)

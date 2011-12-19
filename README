@@ -1,4 +1,3 @@
-
 * QUEUES
 The queue's name describes the function of the puller.
 
@@ -22,3 +21,10 @@ python-pip # (for pika)
 
 python-pika (via pip): sudo pip install pika==0.9.5
 python-pycassa: sudo pip install pycassa
+
+for news annotator:
+python-gensim
+python-scipy (if not installed automatically with gensim)
+python-logging (if logs being collected)
+python-sys
+python-math

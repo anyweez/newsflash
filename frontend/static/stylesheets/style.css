@@ -1,0 +1,111 @@
+body {
+    margin: 0;
+    padding: 0;
+    font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+    
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+a {
+  color: #00B7FF;
+}
+
+.core-ui {
+    display: inline-block;
+    float: left;
+}
+
+#map {
+    width: 100%;
+    margin: 2% 10% 0 10%;
+}
+
+@keyframes activate {
+    from: {
+        right: -30%;
+    }
+    to {
+        right: 0%;
+    }
+}
+
+
+#sidebar {
+    position: absolute;
+    right: -30%;
+    
+    /* Animation steps from active to inactive. */
+    
+    background-color: white;
+    opacity: .9;
+    border-left: 1px solid black;
+    
+    height: 100%;
+    width: 25%;
+    
+    padding: 1%;
+}
+
+#sidebar.active {
+    /* Animation steps from inactive to active. */
+    animation-duration: .5s;
+    animation-timing-function: ease-out;
+    animation-fill-mode: forwards;
+    animation-name: activate;
+}
+
+p.close-sidebar {
+    text-align: right;
+    cursor: pointer;
+    margin: 0;
+    
+    color: #333;
+}
+
+.hotness {
+    display: inline-block;
+    width: 30%;
+}
+
+.hotness-value {
+    font-size: 1.4em;
+    margin-bottom: 2%;
+}
+
+.hotness-label {
+    font-size: .9em;
+    font-style: italic;
+}
+
+path:hover {
+    fill: #FE2E2E;
+}
+
+.land {
+    fill: #ececec;
+    fill-opacity: 1;
+    stroke:#848484;
+    stroke-opacity: 1;
+    stroke-width:0.5;
+}
+
+.heatmap-0 {
+    fill: white;
+    stroke: #333;
+}
+
+.heatmap-1 {
+    fill: yellow;
+    stroke: #333;
+}
+
+.heatmap-2 {
+    fill: orange;
+    stroke: #333;
+}
+
+.heatmap-3 {
+    fill: red;
+    stroke: #333;
+}

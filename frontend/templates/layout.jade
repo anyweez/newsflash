@@ -1,0 +1,40 @@
+doctype html
+html
+  head
+    title= title
+    link(rel='stylesheet', href='/static/stylesheets/style.css')
+    script(src='https://code.jquery.com/jquery-2.1.4.js')
+    script(src='/static/javascripts/underscore.js')
+    script(src='/static/javascripts/backbone.js')
+    script(src='/static/javascripts/newsflash.js')
+    
+    script(id='sidebar-template', type='text/template')
+      | <p class='close-sidebar'><span id='close-sb'>&#10006;</span></p>
+      | <h2> <%= name %> </h2>
+      | <% if (available) { %>
+      | <div class='hotness hotness-value'><%= hotness.current %></div>
+      | <div class='hotness hotness-value'><%= hotness.last7 %></div>
+      | <div class='hotness hotness-value'><%= hotness.last30 %></div>
+      | <div class='hotness hotness-label'>Current</div>
+      | <div class='hotness hotness-label'>7 days</div>
+      | <div class='hotness hotness-label'>30 days</div>
+      | <hr />
+      | <p>Leader: <%= current_leader %></p>
+      | <p>Recent stories</p>
+      | <ul>
+      |   <% _.each(stories, function(story) { %>
+      |   <li><%= story.title %></li>
+      |   <% }) %>
+      | </ul>
+      | <p>Related countries</p>
+      | <ul>
+      |   <% _.each(related_countries, function(country) { %>
+      |   <li><%= country.attributes.name %></li>
+      |   <% }) %>
+      | </ul>
+      | <% } else { %>
+      | <p>No recent stories available.</p>
+      | <% } %>
+      
+  body
+    block content

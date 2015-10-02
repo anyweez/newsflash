@@ -6,7 +6,7 @@ html
     script(src='https://code.jquery.com/jquery-2.1.4.js')
     script(src='/static/javascripts/underscore.js')
     script(src='/static/javascripts/backbone.js')
-    script(src='/static/javascripts/newsflash.js')
+    script(src='/static/javascripts/nf.js')
     
     script(id='sidebar-template', type='text/template')
       | <p class='close-sidebar'><span id='close-sb'>&#10006;</span></p>
@@ -29,7 +29,7 @@ html
       | <p>Related countries</p>
       | <ul>
       |   <% _.each(related_countries, function(country) { %>
-      |   <li><%= country.attributes.name %></li>
+      |   <li><a href='#' onclick='selectCountry(<%= country.get("id") %>)'><%= country.get('name') %></a></li>
       |   <% }) %>
       | </ul>
       | <% } else { %>

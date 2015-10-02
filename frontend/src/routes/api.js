@@ -9,9 +9,9 @@ router.get('/', function(req, res, next) {
             id: 'US',
             // Hotness scores that are displayed in the frontend.
             hotness: {
-                current: .91,   // Absolute, [0, 1]
-                last7: .3,      // Relative, now vs seven days ago (30% higher here)
-                last30: .12,    // Relative, now vs thirty days ago (12% higher here)
+                current: 0.91,   // Absolute, [0, 1]
+                last7: 0.3,      // Relative, now vs seven days ago (30% higher here)
+                last30: 0.12,    // Relative, now vs thirty days ago (12% higher here)
             },
             // Name of the current leader, for display.
             current_leader: "Barack Obama",
@@ -25,23 +25,23 @@ router.get('/', function(req, res, next) {
             related_countries: [{
                 id: "RU",
                 hotness: {
-                    current: .91,
-                    last7: .3,
-                    last30: .12,
+                   current: 0.91,
+                   last7: 0.3,
+                   last30: 0.12,
                 },
             }, {
                id: "IR",
-                hotness: {
-                    current: .91,
-                    last7: .3,
-                    last30: .12,
+               hotness: {
+                   current: 0.91,
+                   last7: 0.30,
+                   last30: 0.12,
                 },
             }, {
                 id: "JP",
                 hotness: {
-                    current: .91,
-                    last7: .3,
-                    last30: .12,   
+                   current: 0.91,
+                   last7: 0.3,
+                   last30: 0.12,   
                 }
             }],
         }],

@@ -1,6 +1,7 @@
 /* jslint browser:true */
 
-var newsflash = require('./newsflash');
+var _ = require('underscore');
+var newsflash = null;
 
 /**
  * Some next steps:
@@ -12,7 +13,10 @@ var newsflash = require('./newsflash');
  */
 
 
-window.addEventListener('load', function() {    
+window.addEventListener('load', function() { 
+    // Initialize the module once the page is loaded.
+    newsflash = require('./newsflash');
+    
     // Instantiate a collection of Country's.
     var countries = new newsflash.CountryList();
     

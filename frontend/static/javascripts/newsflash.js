@@ -1,8 +1,13 @@
+/* jslint browser:true */
+
+var Backbone = require('backbone');
+var _ = require('underscore');
+
 /**
- * Country (model)
- *
- * Defines the data structure used to represent a single country.
- */
+* Country (model)
+*
+* Defines the data structure used to represent a single country.
+*/
 var Country = Backbone.Model.extend({
     defaults: {
         id: null,
@@ -98,8 +103,9 @@ var MapView = Backbone.View.extend({
     },
 });
 
-module.export = {
+module.exports = {
     Country: Country,
     CountryList: CountryList,
-
-}
+    CountrySidebarView: CountrySidebarView,
+    MapView: MapView,
+};

@@ -3,33 +3,43 @@ package main
 import (
     "flag"
     "fmt"
-    "labix.org/v2/mgo"
 	"labix.org/v2/mgo/bson"
+    newsflash "newsflash/shared"
     "log"
     "net/http"
     "sync"
+    "os"
     "time"
 )
 
-type NewsflashDoc struct {
-    Id              bson.ObjectId `bson:"_id,omitempty"`
-    Title           string
-    Url             string
-    
-    // The subjects of the article.
-    MajorCountries  []string
-    // Other countries referenced in the article.
-    MinorCountries  []string
-    
-    LastRetrieval   time.Time
-}
+// TODO: document what's going on
+// TODO: read in mapping into CountryTagger
+// TODO: somehow pull URL's from a list of RSS feeds 
+// TODO: logrus integration
 
 var numParallel = flag.Int("count", 2, "The number of tasks to be executed simultaneously.")
-var docStorage = flag.String("docs", "localhost:27017", "The network location of the MongoDB doc store.")
+var mongoUrl = flag.String("mongo", "localhost:27017", "The network location of the MongoDB doc store.")
 
 var MAX_NGRAM_SIZE = 3
 
 var wg = sync.WaitGroup{}
+var MongoSession newsflash.DBSession
+
+
+func init() {
+    flag.Parse()
+    
+    // Initialize the MongoDB session so that it can be used in a couple of 
+    // different places.
+    var err error
+    MongoSession, err = newsflash.NewDBSession(*mongoUrl)
+    if err != nil {
+        log.Println("Error connecting to MongoDB instance: " + err.Error())
+        os.Exit(1)
+    }
+    
+    log.Println("MongoDB session initialized.")
+}
 
 /**
  * Process that retrieves documents containing URL's, fetches the content
@@ -43,15 +53,10 @@ func main() {
     // Create a read-only object that can convert tuples of words into
     // nation labels. Note that this is only intended to handle small
     // quantities of words in a single call (i.e. likely 1-3 words).
-    tagger := NewCountryTagger("empty-loc")
+    tagger := NewCountryTagger()
+    docs := make([]newsflash.NewsflashDoc, 0)
     
-    docs := make([]NewsflashDoc, 0)
-    
-    session, err := mgo.Dial(*docStorage)
-    if err != nil {
-        log.Println("Cannot connect: " + err.Error())
-        return
-    }
+    session := MongoSession.Fork()
     defer session.Close()
      
     c := session.DB("newsflash").C("articles")
@@ -59,7 +64,7 @@ func main() {
     
     fmt.Println(fmt.Sprintf("Found %d docs.", len(docs)));
     
-    work := make(chan NewsflashDoc)
+    work := make(chan newsflash.NewsflashDoc)
     
     // Kick off a few different goroutines, each of which will handle
     // a job at a time and have read-only access to the tagger.
@@ -78,14 +83,11 @@ func main() {
     fmt.Println("Done!")
 }
 
-func annotate(queue chan NewsflashDoc, tagger *CountryTagger) {
+func annotate(queue chan newsflash.NewsflashDoc, tagger *CountryTagger) {
     defer wg.Done()
     
-    session, err := mgo.Dial(*docStorage)
-    if err != nil {
-        log.Println("goroutine connection to mongo failed.")
-        return
-    }
+    session := MongoSession.Fork()
+    defer session.Close()
     
     c := session.DB("newsflash").C("articles")
     
@@ -142,12 +144,14 @@ func annotate(queue chan NewsflashDoc, tagger *CountryTagger) {
                 }
             }
         }
+        // A basic algorithm to identify what the "major" and "minor" countries in an article
+        // are, which accounts for the number of occurences (counted as unweighted events)
+        // in relation to the total length of the article.
         document.MajorCountries, document.MinorCountries = selectCountries(docScore, len(terms))
-        // TODO: some algorithm to find the primary and secondary countries
         
         fmt.Println(fmt.Sprintf("[Storing] %+v", document))
-        // Update the Mongo document.
-        c.Find(bson.M{})
+        // TODO: update the Mongo document.
+        c.Update(bson.M{ "_id": document.Id }, document)
     }
 }
                       

@@ -4,18 +4,16 @@ import (
     "bufio"
     "compress/gzip"
     "flag"
+    "fmt"
+    "log"
     "io"
     "os"
-    "newsflash/shared"
+    newsflash "newsflash/shared"
     "strings"
 )
 
 var FreebasePath = flag.String("freebase", "", "The path to the gzipped Freebase dump.")
 //var mongoUrl = flag.String("mongo", "localhost:27017", "The network location of the MongoDB doc store.")
-
-func init() {
-    flag.Parse()
-}
 
 /**
  * Opens a gzipped file at the specified location and returns a
@@ -25,7 +23,7 @@ func init() {
  */
 func OpenFreebaseDump(path string) (*bufio.Reader, error) {
     // Open the gzipped Freebase dump.
-    fi, err := os.Open(*path)
+    fi, err := os.Open(path)
     if err != nil {
         return nil, err
     }
@@ -37,7 +35,7 @@ func OpenFreebaseDump(path string) (*bufio.Reader, error) {
     }
     defer zipped.Close()
     
-    return bufio.NewReader(zipped)
+    return bufio.NewReader(zipped), nil
 }
 
 /**
@@ -71,8 +69,10 @@ func ParseLine(line string) (string, string, string) {
  * function contains the logic to distinguish. The goal is to make it as fast
  * as possible to reject since that's the common case.
  */
-func CheckForKeeper(obj map[string]string) bool {
+func CheckForKeeper(obj map[string][]string) bool {
     // Check if the notable_type == country. If so, accept and if not reject.
+
+    return false
 }
 
 /**
@@ -84,18 +84,19 @@ func CheckForKeeper(obj map[string]string) bool {
  *
  * TODO: map the actual fields once we know the predicates.
  */
-func ConvertToCTD(obj map[string]string) newsflash.CountryTagData {
+func ConvertToCTD(obj map[string][]string) newsflash.CountryTagData {
     ctd := newsflash.CountryTagData{}
     
     ctd.CountryName = "tbd"
     ctd.CountryCode = "tbd"
     ctd.LeaderName = "tbd"
-    ctd.Terms = append(ctd.Terms, []string{})
+    ctd.Terms = append(ctd.Terms, []string{}...)
     
     return ctd
 }
 
 func main() {
+    flag.Parse()
     countries := make(map[string]newsflash.CountryTagData)
     
     // Get a file pointer to the specified gzipped Freebase dump so that we
@@ -110,10 +111,15 @@ func main() {
     // time so that memory doesn't get overwhelmed.
     current_subj := ""
     current_fields := make(map[string][]string)
-    for line, _, err := reader.ReadLine(); err != io.EOF {
+    for {
+        line, _, err := reader.ReadLine()
+        if err == io.EOF {
+            break
+        }
         // Parse each line and extract subject, predicate, and object. Subjects
         // are annotated to only include mid's (m.*)
-        subj, pred, obj := ParseLine(line)
+        subj, pred, obj := ParseLine(string(line))
+        fmt.Println(fmt.Sprintf("[%s] [%s] [%s]", subj, pred, obj))
         
         // Update the current subject.
         if current_subj != subj {
@@ -127,7 +133,7 @@ func main() {
             
             // Reset our state variables.
             current_subj = subj
-            current_fields = make(map[string]string)
+            current_fields = make(map[string][]string)
         }
         
         // There can be more than one value for each predicate, so we need to initialize
@@ -135,7 +141,7 @@ func main() {
         // throw new values into the array when we find them.
         _, exists := current_fields[pred]
         if !exists {
-            current_fields[pred] = make([]string)
+            current_fields[pred] = make([]string, 0)
         }
         current_fields[pred] = append(current_fields[pred], obj)
     }

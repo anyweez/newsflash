@@ -11,16 +11,6 @@ type CountryTagger struct {
 }
 
 /**
- * MongoDB representation, which is read and then parsed into a CountryTagger for
- * runtime performance reasons.
- */
-type CountryTagData struct {
-    CountryName     string
-    CountryCode     string
-    Terms           []string
-}
-
-/**
  * Function to convert a series of words into a properly-formatted key. This needs
  * to be consistent for terms in the CountryTagData records and those that are read
  * in from articles; this function is the gold standard and is re-run on CTD data

@@ -1,4 +1,9 @@
-import sys, pprint
+import sys, pprint, argh
+from pymongo import MongoClient
+
+
+## argv[1] = file to parse
+## argv[2] = network address of MongoDB instance to output to
 
 class Record(object):
     def __init__(self, line):
@@ -30,21 +35,23 @@ class CountryTagData(object):
         return self.Terms.keys()
 
         
-def main():
+def main(dumpPath='allCountries.txt', mongoUrl='127.0.0.1'):
     # Mapping of all countries by country code.
     countries = {}
-    validCodes = [ \
-        'ADM1', 'ADM2', 'PCL', 'TERR', \    # FeatureClass = A
-        'BNK', 'HBR', 'LKS',                # FeatureClass = H
-        # FeatureClass = L
-        'PPL', 'PPLC', 'PPLS', 'PPLG'       # FeatureClass = P
+    # Feature codes that should be kept; all others will be discarded.
+    validCodesList = [ \
+        'ADM1', #'ADM2',     # FeatureClass = A
+                            # FeatureClass = H
+                            # FeatureClass = L
+#        'PPL', 'PPLC', 'PPLS', 'PPLG'       # FeatureClass = P
     ]
+    validCodes = {key: None for key in validCodesList}
     
     ###
     ## First pass identifies all independent political entities (countries) and records them
     ## in the `countries` dictionary.
     ###
-    with open(sys.argv[1]) as fp:
+    with open(dumpPath) as fp:
         for line in fp:
             record = Record(line)
 
@@ -54,7 +61,7 @@ def main():
     ###
     ## Second pass 
     ###
-    with open(sys.argv[1]) as fp:
+    with open(dumpPath) as fp:
         for line in fp:
             record = Record(line)
             
@@ -62,12 +69,38 @@ def main():
                 country = countries[record.countryCode]
                 
                 # Add the name of the entity
-                country.addTerm(record.name)
-                # Add alternative names of the entity
-                map(lambda x: country.addTerm(x), record.alternateNames)
-
-    for _, country in countries.iteritems():
-        print "%s:\n%s" % (country.CountryName, country.getTerms())
+                try:
+                    record.name.decode('ascii')
+                    country.addTerm(record.name)
+                except UnicodeDecodeError:
+                    pass
                 
-if __name__ == '__main__':
-    main()
+                for term in record.alternateNames:
+                    try:
+                        term.decode('ascii')
+                        country.addTerm(term)
+                    except UnicodeDecodeError:
+                        pass
+                        
+                # Add alternative names of the entity
+#                map(lambda x: country.addTerm(x), record.alternateNames)
+
+    
+    ### 
+    ## Initialize a database connection and update / insert country data.
+    ###
+    dbClient = MongoClient('mongodb://%s/' % mongoUrl)
+    collection = dbClient.newsflash.country_data
+    
+    for _, country in countries.iteritems():
+        collection.update_one(
+            filter={'countrycode': country.CountryCode},
+            update={'$set': {
+                'countryname': country.CountryName,
+                'countrycode': country.CountryCode,
+                'terms': country.getTerms(),
+            }},
+            upsert=True,
+        )
+                            
+argh.dispatch_command(main)

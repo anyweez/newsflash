@@ -6,14 +6,21 @@ import (
     "flag"
     "fmt"
     "log"
-    "io"
     "os"
     newsflash "newsflash/shared"
+    mgo "gopkg.in/mgo.v2"
     "strings"
 )
 
 var FreebasePath = flag.String("freebase", "", "The path to the gzipped Freebase dump.")
+var ParallelCount = flag.Int("parallel", 2, "The number of lines that should be processed in parallel per stage.")
 //var mongoUrl = flag.String("mongo", "localhost:27017", "The network location of the MongoDB doc store.")
+
+type SimpleNameRequest struct {
+    Country string
+    Target  string
+    Why     string
+}
 
 /**
  * Opens a gzipped file at the specified location and returns a
@@ -21,21 +28,22 @@ var FreebasePath = flag.String("freebase", "", "The path to the gzipped Freebase
  * compressed so a buffered reader is necessary to do anything of
  * of value.
  */
-func OpenFreebaseDump(path string) (*bufio.Reader, error) {
+func OpenFreebaseDump(path string) (*bufio.Reader, error, func()) {
     // Open the gzipped Freebase dump.
     fi, err := os.Open(path)
     if err != nil {
-        return nil, err
+        return nil, err, func (){}
     }
-    defer fi.Close()
     
     zipped, err := gzip.NewReader(fi)
     if err != nil {
-        return nil, err
+        return nil, err, func (){}
     }
-    defer zipped.Close()
     
-    return bufio.NewReader(zipped), nil
+    return bufio.NewReader(zipped), nil, func () {
+        fi.Close()
+        zipped.Close()
+    }
 }
 
 /**
@@ -44,9 +52,24 @@ func OpenFreebaseDump(path string) (*bufio.Reader, error) {
  * all of the excess stripped away, such as fully qualified URL's.
  */
 func ConvertFreebaseField(raw string) string {
-    raw = strings.Replace(raw, "<http://rdf.freebase.com/ns/", "", -1)
-    // Remove one to get rid of the closing angle bracket.
-    return raw[0:len(raw)-1]
+    if strings.HasPrefix(raw, "<http") {
+        raw = strings.Replace(raw, "<http://rdf.freebase.com/ns/", "", -1)
+        // Remove one to get rid of the closing angle bracket.
+        raw = raw[0:len(raw)-1]
+    }
+    
+    // If there are at least two quotation marks, trim off everything outside
+    // of the outermost quotes.
+    if strings.Index(raw, "\"") >= 0 {
+        start := strings.Index(raw, "\"")
+        end := strings.LastIndex(raw, "\"")
+        
+        if start != end {
+            raw = raw[start+1:end]
+        }
+    }
+    
+    return raw
 }
 
 /**
@@ -56,23 +79,21 @@ func ConvertFreebaseField(raw string) string {
  * records.
  */
 func ParseLine(line string) (string, string, string) {
+    // If the string is localized to anything but English, throw it out.
+    // Can't currently support multiple languages and Freebase coverage
+    // seems to be pretty spotty.
+    if strings.Index(line, "@") >= 0 {
+        i := strings.Index(line, "@")
+        if line[i:i+3] != "@en" {
+            return "", "", ""
+        }
+    }
+    
     fragment := strings.Split(line, "\t")
     
     return ConvertFreebaseField(fragment[0]), 
         ConvertFreebaseField(fragment[1]), 
         ConvertFreebaseField(fragment[2])
-}
-
-/**
- * Filtering function that identifies whether a particular record is important
- * to retain. In the vast majority of cases the answer will be no, but this
- * function contains the logic to distinguish. The goal is to make it as fast
- * as possible to reject since that's the common case.
- */
-func CheckForKeeper(obj map[string][]string) bool {
-    // Check if the notable_type == country. If so, accept and if not reject.
-
-    return false
 }
 
 /**
@@ -95,56 +116,34 @@ func ConvertToCTD(obj map[string][]string) newsflash.CountryTagData {
     return ctd
 }
 
+/**
+ * Perform two passes over a Freebase file; the first pass identifies all entities
+ * that are labeled as countries. The second pass finds and stores relevant fields
+ * for the entities that were labeled in the first pass.
+ */
 func main() {
     flag.Parse()
-    countries := make(map[string]newsflash.CountryTagData)
     
-    // Get a file pointer to the specified gzipped Freebase dump so that we
-    // can read from it line-by-line.
-    reader, err := OpenFreebaseDump(*FreebasePath)
+    countries, names := RunFirstStage(*FreebasePath)
+    countries = RunSecondStage(*FreebasePath, countries, names)
+    
+    // Store data for valid countries.
+    log.Println("Storing in database...")
+    session, err := mgo.Dial("172.30.0.101")
     if err != nil {
-        log.Println("Error reading Freebase dump: " + err.Error())
-        os.Exit(1)
+        log.Println("Couldn't connect to MongoDB: " + err.Error())
+        return
     }
+    defer session.Close()
     
-    // This file is likely huge so we need to move through it one line at a
-    // time so that memory doesn't get overwhelmed.
-    current_subj := ""
-    current_fields := make(map[string][]string)
-    for {
-        line, _, err := reader.ReadLine()
-        if err == io.EOF {
-            break
+    collection := session.DB("newsflash").C("country_tags")
+    
+    for _, country := range countries {
+        if len(country.CountryCode) > 0 {
+            collection.Insert(country)
+            log.Println(fmt.Sprintf("Valid: %+v", country))
+        } else {
+            log.Println(fmt.Sprintf("Invalid: %+v", country))
         }
-        // Parse each line and extract subject, predicate, and object. Subjects
-        // are annotated to only include mid's (m.*)
-        subj, pred, obj := ParseLine(string(line))
-        fmt.Println(fmt.Sprintf("[%s] [%s] [%s]", subj, pred, obj))
-        
-        // Update the current subject.
-        if current_subj != subj {
-            // Check to see if the current object is of interest before we
-            // throw it away. If so, store it in a persistent mapping so that
-            // we can do something responsible with it.
-            if CheckForKeeper(current_fields) {
-                ctd := ConvertToCTD(current_fields)
-                countries[ctd.CountryCode] = ctd
-            }
-            
-            // Reset our state variables.
-            current_subj = subj
-            current_fields = make(map[string][]string)
-        }
-        
-        // There can be more than one value for each predicate, so we need to initialize
-        // an array of strings for each predicate. After it's been initialized, simply
-        // throw new values into the array when we find them.
-        _, exists := current_fields[pred]
-        if !exists {
-            current_fields[pred] = make([]string, 0)
-        }
-        current_fields[pred] = append(current_fields[pred], obj)
     }
-    
-    // TODO: write out all values from `countries`.
 }

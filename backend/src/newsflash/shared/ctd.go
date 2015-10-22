@@ -7,6 +7,7 @@ package shared
 type CountryTagData struct {
     CountryName     string
     CountryCode     string
+    FreebaseMid     string
     LeaderName      string
     Terms           []string
 }
